@@ -24,7 +24,6 @@ p = inputParser;
 p.KeepUnmatched = true;
 
 addRequired(p, 'wc', @isnumeric);
-addParameter(p, 'type', 'advection', @ischar);
 
 parse(p, wc, varargin{:});
 
