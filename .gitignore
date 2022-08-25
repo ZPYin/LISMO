@@ -1,2 +1,5 @@
 # exclude temporary files
 *.asv
+
+# exclude folders
+results
