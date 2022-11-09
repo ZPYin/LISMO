@@ -14,6 +14,7 @@ function [sfBsc, sfExt] = SeaFogModel(distance, wavelength, varargin)
 %        'sea-fog-weak'
 %        'sea-fog-moderate'
 %        'sea-fog-heavy'
+%        'sea-fog-none'
 %    seaFogType: char
 %        sea fog type.
 %        'moderate-radiation-fog' (default)
