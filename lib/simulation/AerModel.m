@@ -55,7 +55,7 @@ case 'marine-heavy'
     layerBase = 0;   % distance of sea fog base. (m)
     layerTop = 1500;   % distance of sea fog top. (m)
     lr = 20;   % lidar ratio of sea fog. (sr)
-    aExtMax = 200e-6;   % maximum extinction at 532 nm. (m-1)
+    aExtMax = 300e-6;   % maximum extinction at 532 nm. (m-1)
     aExtFunc = @(h) (-aExtMax / (layerTop - layerBase).^2 .* (h - layerBase).^2 + aExtMax) .* ((h >= layerBase) & (h <= layerTop));
     aBscFunc = @(h) aExtFunc(h) / lr;
 

@@ -121,9 +121,11 @@ dataSim.N_FR_Poiss = N_FR_Poiss;
 dataSim.N_FR = N_FR;
 dataSim.Nb_FR = Nb_FR;
 dataSim.Ns_FR = Ns_FR;
+dataSim.Nd_FR = Nd_FR;
 dataSim.N_NR_Poiss = N_NR_Poiss;
 dataSim.N_NR = N_NR;
 dataSim.Nb_NR = Nb_NR;
+dataSim.Nd_NR = Nd_NR;
 dataSim.Ns_NR = Ns_NR;
 
 %% data visualization
@@ -145,7 +147,7 @@ if strcmpi(p.Results.visible, 'on')
     ylabel('Distance (km)');
 
     ylim([0, 20]);
-    xlim([0.01, 1e6]);
+    xlim([1e-4, 1e6]);
 
     set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'XTick', logspace(-2, 6, 5), 'Box', 'on', 'FontSize', 11);
 
@@ -165,7 +167,7 @@ if strcmpi(p.Results.visible, 'on')
     ylim([0, 20]);
     xlim([1e-4, 1e6]);
 
-    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTick', '', 'XTick', logspace(-4, 6, 6), 'Box', 'on', 'FontSize', 11);
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTickLabel', '', 'XTick', logspace(-4, 6, 6), 'Box', 'on', 'FontSize', 11);
 
     subplot('Position', subfig(3, :), 'Units', 'Normalized');
     SNRFR = (N_FR_Poiss - Nb_FR - Nd_FR) ./ sqrt(N_FR_Poiss);
@@ -183,7 +185,7 @@ if strcmpi(p.Results.visible, 'on')
     ylim([0, 20]);
     xlim([0.1, 1e6]);
 
-    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTick', '', 'XTick', logspace(0, 6, 4), 'Box', 'on', 'FontSize', 11);
+    set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTickLabel', '', 'XTick', logspace(0, 6, 4), 'Box', 'on', 'FontSize', 11);
 end
 
 end
