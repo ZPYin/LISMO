@@ -43,8 +43,8 @@ addRequired(p, 'distance', @isnumeric);
 addRequired(p, 'wavelength', @isnumeric);
 addParameter(p, 'scene', 'sea-fog-moderate', @ischar);
 addParameter(p, 'seaFogType', 'moderate-radiation-fog', @ischar);
-addParameter(p, 'distLayerFront', 3000, @isnumeric);
-addParameter(p, 'distLayerBack', 6000, @isnumeric);
+addParameter(p, 'distLayerFront', 4000, @isnumeric);
+addParameter(p, 'distLayerBack', 5000, @isnumeric);
 
 parse(p, distance, wavelength, varargin{:});
 
@@ -71,16 +71,16 @@ case 'sea-fog-weak'
     sfExtFunc = @(r) (sfExtMax / (p.Results.distLayerBack - p.Results.distLayerFront)^2 * 4 .* (r - p.Results.distLayerFront) .* (p.Results.distLayerBack - r)) .* ((r >= p.Results.distLayerFront) & (r <= p.Results.distLayerBack));
     sfBscFunc = @(r) sfExtFunc(r) / lr;
 case 'sea-fog-moderate'
-    sfExtMax = 1400e-6;   % maximum extinction. (m-1)
+    sfExtMax = 1000e-6;   % maximum extinction. (m-1)
     sfExtFunc = @(r) (sfExtMax / (p.Results.distLayerBack - p.Results.distLayerFront)^2 * 4 .* (r - p.Results.distLayerFront) .* (p.Results.distLayerBack - r)) .* ((r >= p.Results.distLayerFront) & (r <= p.Results.distLayerBack));
     sfBscFunc = @(r) sfExtFunc(r) / lr;
 case 'sea-fog-heavy'
-    sfExtMax = 4000e-6;   % maximum extinction. (m-1)
+    sfExtMax = 2000e-6;   % maximum extinction. (m-1)
     sfExtFunc = @(r) (sfExtMax / (p.Results.distLayerBack - p.Results.distLayerFront)^2 * 4 .* (r - p.Results.distLayerFront) .* (p.Results.distLayerBack - r)) .* ((r >= p.Results.distLayerFront) & (r <= p.Results.distLayerBack));
     sfBscFunc = @(r) sfExtFunc(r) / lr;
 case 'sea-fog-none'
-    sfExtFunc = @(r) 0;
-    sfBscFunc = @(r) 0;
+    sfExtFunc = @(r) zeros(size(r));
+    sfBscFunc = @(r) zeros(size(r));
 otherwise
     error('Unknown meteorological data type.');
 end
