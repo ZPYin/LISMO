@@ -15,6 +15,7 @@ function [sfBsc, sfExt] = SeaFogModel(distance, wavelength, varargin)
 %        'sea-fog-moderate'
 %        'sea-fog-heavy'
 %        'sea-fog-none'
+%        'fog-lsw'
 %    seaFogType: char
 %        sea fog type.
 %        'moderate-radiation-fog' (default)
@@ -66,6 +67,10 @@ end
 
 %% Read meteorological data
 switch lower(p.Results.scene)
+case 'fog-lsw'
+    sfExtMax = 3000e-6;
+    sfExtFunc = @(r) (sfExtMax) .* ((r >= p.Results.distLayerFront) & (r <= p.Results.distLayerBack));
+    sfBscFunc = @(r) sfExtFunc(r) / lr;
 case 'sea-fog-weak'
     sfExtMax = 500e-6;   % maximum extinction. (m-1)
     sfExtFunc = @(r) (sfExtMax / (p.Results.distLayerBack - p.Results.distLayerFront)^2 * 4 .* (r - p.Results.distLayerFront) .* (p.Results.distLayerBack - r)) .* ((r >= p.Results.distLayerFront) & (r <= p.Results.distLayerBack));

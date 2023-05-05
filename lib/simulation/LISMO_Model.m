@@ -47,6 +47,8 @@ function [dataSim] = LISMO_Model(distArr, varargin)
 %        total extinction coefficient. (m^-1)
 %    visible: char
 %        whether to display the signal profile. ('on' (default) | 'off')
+%    ylim: 2-element array
+%        y-axis range. (km)
 %
 % OUTPUTS:
 %    dataSim: struct
@@ -87,6 +89,7 @@ addParameter(p, 'ND_NR', 2, @isnumeric);
 addParameter(p, 'tBsc', [], @isnumeric);
 addParameter(p, 'tExt', [], @isnumeric);
 addParameter(p, 'visible', 'on', @ischar);
+addParameter(p, 'ylim', [0, 20], @isnumeric);
 
 parse(p, distArr, varargin{:});
 
@@ -146,7 +149,7 @@ if strcmpi(p.Results.visible, 'on')
     xlabel('Photon Count Rate (MHz)');
     ylabel('Distance (km)');
 
-    ylim([0, 20]);
+    ylim(p.Results.ylim);
     xlim([1e-4, 1e6]);
 
     set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'XTick', logspace(-2, 6, 5), 'Box', 'on', 'FontSize', 11);
@@ -164,7 +167,7 @@ if strcmpi(p.Results.visible, 'on')
     xlabel('Signal /w noise (MHz)');
     ylabel('');
 
-    ylim([0, 20]);
+    ylim(p.Results.ylim);
     xlim([1e-4, 1e6]);
 
     set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTickLabel', '', 'XTick', logspace(-4, 6, 6), 'Box', 'on', 'FontSize', 11);
@@ -182,7 +185,7 @@ if strcmpi(p.Results.visible, 'on')
     ylabel('');
     legend([p1, p2, p3, p4, p5], 'Location', 'NorthEast');
 
-    ylim([0, 20]);
+    ylim(p.Results.ylim);
     xlim([0.1, 1e6]);
 
     set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTickLabel', '', 'XTick', logspace(0, 6, 4), 'Box', 'on', 'FontSize', 11);
