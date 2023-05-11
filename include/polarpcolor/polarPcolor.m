@@ -68,6 +68,7 @@ p.addOptional('Nspokes',8);
 p.addOptional('labelR','');
 p.addOptional('RtickLabel',[]);
 p.addOptional('colBar',1);
+p.addOptional('cRange',[]);
 p.addOptional('Rscale','linear');
 p.addOptional('colormap','parula');
 p.addOptional('ncolor',[]);
@@ -184,7 +185,11 @@ end
 %% PLot colorbar if specified
 if colBar==1,
     c =colorbar('location','WestOutside');
-    caxis([quantile(Z(:),0.01),quantile(Z(:),0.99)])
+    if isempty(p.Results.cRange)
+        caxis([quantile(Z(:),0.01),quantile(Z(:),0.99)]);
+    else
+        caxis(p.Results.cRange);
+    end
 else
     c = [];
 end
