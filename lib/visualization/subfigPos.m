@@ -15,7 +15,7 @@ function [figPos] = subfigPos(pos, nRow, nColumn, xPad, yPad)
 %        x-padding
 %    yPad: numeric
 %        y-padding
-%
+%mm
 % OUTPUTS:
 %    figPos: matrix
 %        returned postition of each subfigures. The first figure is the 

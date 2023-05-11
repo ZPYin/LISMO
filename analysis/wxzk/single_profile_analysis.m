@@ -55,7 +55,7 @@ subPos = subfigPos([0.1, 0.1, 0.86, 0.86], 1, 3, 0.04, 0);
 
 subplot('Position', subPos(1, :), 'Units', 'Normalized');
 for iPrf = 1:size(data.rawSignal, 1)
-    distArr = (1:data.nBins) * data.hRes(iPrf);
+    distArr = (1:data.nBins) * data.hRes(iPrf) - 51;
     semilogx(squeeze(data.rawSignal(iPrf, 1, :)), distArr); hold on;
 end
 xlabel('raw sig. [a.u.]');

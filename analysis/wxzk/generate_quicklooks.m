@@ -9,9 +9,10 @@
 dataPath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData';
 savePath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\Quicklooks';
 location = 'QingDao';
-tRange = [datenum(2023, 4, 19, 0, 0, 0), datenum(2023, 4, 19, 23, 59, 59)];
+tRange = [datenum(2023, 4, 18, 0, 0, 0), datenum(2023, 4, 18, 23, 59, 59)];
 visRetMethod = 'quasi';   % xian: Xian's method; quasi: Quasi retrieval
 debug = false;
+overlapCor = true;
 
 for iDate = floor(tRange(1)):floor(tRange(2))
     fprintf('Finished %6.2f%%\n', (iDate - floor(tRange(1))) / (floor(tRange(2)) - floor(tRange(1))) * 100);
@@ -54,11 +55,15 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         data = readVIS(dataFiles, 'debug', debug);
 
         %% Display RCS
-        range = ((1:data.nBins(1)) + 0.5) * data.hRes(1);
+        range = ((1:data.nBins(1)) + 0.5) * data.hRes(1) - 48.75;
         X = (sin(data.zenithAng' / 180 * pi) .* sin(data.azimuthAng' / 180 * pi)) * range;
         Y = (sin(data.zenithAng' / 180 * pi) .* cos(data.azimuthAng' / 180 * pi)) * range;
         bg = nanmean(squeeze(data.rawSignal(:, 1, 2900:2950)), 2);
         signal = squeeze(data.rawSignal(:, 1, :)) - repmat(bg, 1, data.nBins(1));
+        if overlapCor
+            load('overlap.mat');
+            signal = signal ./ repmat(ov, size(signal, 1), 1);
+        end
         rcs = signal .* repmat(range, length(data.hRes), 1).^2;
         snr = (signal) ./ sqrt(squeeze(data.rawSignal(:, 1, :)));
 
@@ -71,13 +76,13 @@ for iDate = floor(tRange(1)):floor(tRange(2))
             elseif strcmpi(visRetMethod, 'quasi')
                 [~, ext(iPrf, :)] = extRet_Holger(range, signal(iPrf, :), ...
                     'calibration_constant', 0.079e16, ...
-                    'fullOverlapR', 500, ...
+                    'fullOverlapR', 0, ...
                     'elevation_angle', data.zenithAng(iPrf));
             else
             end
 
         end
-        ext(:, range <= 500) = NaN;
+        %ext(:, range <= 500) = NaN;
 
         %% Create Save Path
         subSavePath = fullfile(savePath, location, datestr(granuleTimes(iFolder), 'yyyy'), datestr(granuleTimes(iFolder), 'mm'), datestr(granuleTimes(iFolder), 'dd'));
@@ -87,9 +92,8 @@ for iDate = floor(tRange(1)):floor(tRange(2))
 
         figure('color', 'w', 'visible', 'off');
         rcs(snr <= 1) = NaN;
-        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, rcs, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default');
+        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, rcs, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 4e9]);
         text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
-        caxis([0, 4e9]);
         ylabel(p1, 'range cor. sig.');
         set(p1, 'location', 'westoutside');
         colormap(gca, myColormap('jetImage'));
@@ -103,13 +107,13 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         %% Extinction Retrieval
         ext(snr < 3) = NaN;
         vis = ext2vis(ext);
+        vis(isnan(vis)) = 1e5;
 
         figure('color', 'w', 'visible', 'off');
-        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, vis, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default');
+        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, vis, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 2e4]);
         text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
         ylabel(p1, 'visiblity (m)');
         set(p1, 'location', 'westoutside');
-        caxis([0, 2e4]);
         colormap(gca, flipud(myColormap('jetImage')));
         text(0.6, -0.15, 'distance (km)', 'Units', 'normalized', 'FontSize', 11, 'FontWeight', 'light');
 
