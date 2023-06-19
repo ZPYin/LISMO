@@ -16,9 +16,11 @@ function [oData] = readALADat(file, varargin)
 %
 % OUTPUTS:
 %    oData: struct
-%        height: array
 %        rawSignal: matrix
 %        mTime: numeric
+%        nPretrigger: numeric
+%        nShots: numeric
+%        channelLabel: cell
 %
 % HISTORY:
 %    2023-06-10: first edition by Zhenping
@@ -49,12 +51,13 @@ end
 %% read data
 fid = fopen(file, 'r');
 
-for iLine = 1:13
+for iLine = 1:12
     fgetl(fid);
 end
 
 thisLine = fgetl(fid);
 channelLabel = strsplit(thisLine, '	');
+fgetl(fid);
 thisLine = fgetl(fid);
 binWidthCell = strsplit(thisLine, '	');
 binWidth = str2double(binWidthCell);
@@ -86,15 +89,23 @@ end
 
 rawSignal = [];
 for iCh = 1:length(channelLabel)
-    rawSignal = cat(2, rawSignal, lidarData{iCh});
+    rawSignal = cat(2, rawSignal, lidarData{iCh}(1:(end - 1)));
+end
+
+%% Remove empty channel
+isValidChannel = true(1, length(channelLabel));
+for iCh = 1:length(channelLabel)
+    if isempty(channelLabel{iCh})
+        isValidChannel(iCh) = false;
+    end
 end
 
 oData = struct;
 oData.mTime = mTime;
-oData.rawSignal = rawSignal;
-oData.channelLabel = channelLabel;
+oData.rawSignal = rawSignal(:, isValidChannel);
+oData.channelLabel = channelLabel(isValidChannel);
 oData.hRes = binWidth * 0.15;
-oData.nPretrigger = nPretrigger;
-oData.nShots = nPulse;
+oData.nPretrigger = nPretrigger(isValidChannel);
+oData.nShots = nPulse(isValidChannel);
 
 end
