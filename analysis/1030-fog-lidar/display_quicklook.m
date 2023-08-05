@@ -1,9 +1,9 @@
 clc;
 
 %% Parameter Initialization
-dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar';
+dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030';
 saveFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\quicklooks';
-date = datenum(2023, 6, 12);
+date = datenum(2023, 7, 25);
 hRes = 7.5;
 firstRangeBin = 15;
 cRange = [0, 1e6];
@@ -30,7 +30,7 @@ if flagReadData
     rawSignal = data.rawSignal / (50 * thisData.nShots(1) * 1e-3);
     corSignal = rawSignal ./ (1 - deadtime * rawSignal * 1e-3);
 
-    bg = nanmean(corSignal(3500:3600, :, :), 1);
+    bg = nanmean(corSignal(3000:3100, :, :), 1);
     signal = corSignal - repmat(bg, size(corSignal, 1), 1, 1);
     height = ((1:size(corSignal, 1)) - firstRangeBin + 0.5) * hRes;
     rcs = signal .* repmat(reshape(height, length(height), 1, 1), 1, size(signal, 2), size(signal, 3)).^2;
@@ -46,12 +46,12 @@ xlabel('Time (HH:MM)');
 ylabel('Distance (m)');
 title(sprintf('Range corrected signal at %s', datestr(data.mTime(1), 'yyyy-mm-dd')));
 
-xlim([floor(data.mTime(1)), floor(data.mTime(1)) + 1]);
-ylim([0, 20000]);
 caxis(cRange);
 colormap('jet');
 
-set(gca, 'TickDir', 'out', 'XTick', linspace(floor(data.mTime(1)), floor(data.mTime(1)) + 1, 5), 'Box', 'on');
+set(gca, 'TickDir', 'out', 'Box', 'on');
+xlim([min(data.mTime), max(data.mTime)]);
+ylim([0, 20000]);
 datetick(gca, 'x', 'HH:MM', 'keeplimits', 'keepticks');
 
 colorbar();

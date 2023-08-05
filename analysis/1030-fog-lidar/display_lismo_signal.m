@@ -3,7 +3,7 @@ global LISMO_VARS;
 
 %% Parameter Initialization
 dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar';
-date = datenum(2023, 6, 12);
+date = datenum(2023, 6, 27);
 hRes = 7.5;
 firstRangeBin = 15;
 deadtime = 22;   % [ns]
@@ -27,13 +27,13 @@ end
 rawSignal = data.rawSignal / (50 * thisData.nShots(1) * 1e-3);
 corSignal = rawSignal ./ (1 - deadtime * rawSignal * 1e-3);
 
-bg = nanmean(corSignal(3500:3600, :, :), 1);
+bg = nanmean(corSignal(3400:3500, :, :), 1);
 signal = corSignal - repmat(bg, size(corSignal, 1), 1, 1);
 height = ((1:size(corSignal, 1)) - firstRangeBin + 0.5) * hRes;
 rcs = signal .* repmat(reshape(height, length(height), 1, 1), 1, size(signal, 2), size(signal, 3)).^2;
 
 %% Data Display
-iProf = 665;
+iProf = 260:320;
 
 % profile with full range
 figure('Position', [0, 0, 500, 300], 'Units', 'Pixels', 'Color', 'w');
@@ -51,7 +51,7 @@ title(sprintf('Time: %s', datestr(data.mTime(iProf), 'yyyy-mm-dd HH:MM:SS')));
 
 set(gca, 'XMinorTick', 'off', 'YMinorTick', 'on', 'Box', 'on', 'YScale', 'log');
 
-legend([p1, p2], 'Location', 'NorthEast');
+%legend([p1, p2], 'Location', 'NorthEast');
 
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'test-measurement-single-profile.png'), '-r300');
 
@@ -71,16 +71,34 @@ title(sprintf('Time: %s', datestr(data.mTime(iProf), 'yyyy-mm-dd HH:MM:SS')));
 
 set(gca, 'XMinorTick', 'off', 'YMinorTick', 'on', 'Box', 'on', 'YScale', 'log');
 
-legend([p1, p2], 'Location', 'NorthEast');
+%legend([p1, p2], 'Location', 'NorthEast');
 
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'test-measurement-single-profile-zoomin.png'), '-r300');
 
-% range corrected signal
+%% snr
+figure('Position', [0, 0, 500, 300], 'Units', 'Pixels', 'Color', 'w');
+hold on;
+snrFR = sum(signal(:, 2, iProf), 3) ./ sqrt(sum(corSignal(:, 2, iProf), 3)) * sqrt((50 * thisData.nShots(1) * 1e-3));
+snrNR = sum(signal(:, 1, iProf), 3) ./ sqrt(sum(corSignal(:, 1, iProf), 3)) * sqrt((50 * thisData.nShots(1) * 1e-3));
+p1 = semilogy(height, snrFR, '-', 'Color', [15, 15, 172] / 255, 'LineWidth', 2, 'DisplayName', 'Far-Range');
+p2 = semilogy(height, snrNR, '-', 'Color', [56, 87, 35] / 255, 'LineWidth', 2, 'DisplayName', 'Near-Range');
+
+p3 = semilogy([0, 1e5], [3, 3], '--r');
+xlim([0, max(height)]);
+
+xlabel('Distance [m]');
+ylabel('SNR');
+
+set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'YScale', 'log', 'TickLength', [0.03, 0.03]);
+
+legend([p1, p2], 'Location', 'NorthEast');
+
+%% range corrected signal
 figure('Position', [0, 0, 500, 300], 'Units', 'Pixels', 'Color', 'w');
 
 hold on;
-p1 = plot(height, nanmean(squeeze(corSignal(:, 2, iProf)), 2), '-', 'Color', [15, 15, 172] / 255, 'LineWidth', 2, 'DisplayName', 'Far-Range');
-p2 = plot(height, nanmean(squeeze(corSignal(:, 1, iProf)), 2), '-', 'Color', [56, 87, 35] / 255, 'LineWidth', 2, 'DisplayName', 'Near-Range');
+p1 = plot(height, smooth(nanmean(squeeze(rcs(:, 2, iProf)), 2), 4), '-', 'Color', [15, 15, 172] / 255, 'LineWidth', 2, 'DisplayName', 'Far-Range');
+p2 = plot(height, nanmean(squeeze(rcs(:, 1, iProf)), 2), '-', 'Color', [56, 87, 35] / 255, 'LineWidth', 2, 'DisplayName', 'Near-Range');
 
 xlim([0, max(height)]);
 

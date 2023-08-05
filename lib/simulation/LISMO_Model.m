@@ -19,7 +19,7 @@ function [dataSim] = LISMO_Model(distArr, varargin)
 %        diameter of receiving telescope. (default: 0.134 m)
 %    FOV_FR: double
 %        field of view of far-range detection channel. (default: 0.3 mrad)
-%    FOV_FR: double
+%    FOV_NR: double
 %        field of view of near-range detection channel. (default: 0.4 mrad)
 %    etaFR: double
 %        quantum efficiency of far-range detector. (default: 0.08)
