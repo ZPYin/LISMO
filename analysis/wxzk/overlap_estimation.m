@@ -1,18 +1,20 @@
 clc;
-close all;
+%close all;
 
 %% Parameter Definition
-dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\4\17\H_SCAN0_120_2_20230417005424';
+dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\7\1\H_SCAN30_150_2_20230701200244';
 distOffset = 48.75;
+olFile = 'overlap_0701.mat';
 linFitRange = [700, 1500];
 
 %% List Data Files
 dataFiles = listfile(dataFolder, '\w*.VIS', 1);
+dataFiles = dataFiles(1:15);
 data = readVIS(dataFiles);
 
 %% Overlap Correction
 range = ((1:data.nBins(1)) - 0.5) * data.hRes(1) - distOffset;
-bg = nanmean(squeeze(data.rawSignal(:, 1, 2900:2950)), 2);
+bg = nanmean(squeeze(data.rawSignal(:, 1, 2900:2980)), 2);
 signal = squeeze(data.rawSignal(:, 1, :)) - repmat(bg, 1, data.nBins(1));
 rcs = nansum(signal .* repmat(range, length(data.hRes), 1).^2, 1);
 snr = (signal) ./ sqrt(squeeze(data.rawSignal(:, 1, :)));
@@ -36,9 +38,9 @@ p2 = semilogy(range, fullRCS, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 
 
 xlabel('距离 (米)');
 ylabel('距离修正信号');
-title('2023年4约17日 00:54扫描周期');
+title('2023年7月02日 00:01扫描周期');
 
-xlim([0, 2000]);
+xlim([0, 10000]);
 ylim([1e10, 1e12]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on');
@@ -59,4 +61,4 @@ set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on');
 %% Save Overlap
 ov = rcs ./ fullRCS;
 ov(range >= 600) = 1;
-save('overlap.mat', 'ov', 'range');
+save(olFile, 'ov', 'range');

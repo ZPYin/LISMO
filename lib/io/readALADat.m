@@ -9,10 +9,8 @@ function [oData] = readALADat(file, varargin)
 %        absolute paht of data file.
 %
 % KEYWORDS:
-%    flagDebug: logical
+%    debug: logical
 %    nMaxBin: numeric
-%    autoParse: logical
-%        whether to parse the dat file in an automatic way. (default: false)
 %
 % OUTPUTS:
 %    oData: struct
@@ -30,9 +28,8 @@ p = inputParser;
 p.KeepUnmatched = true;
 
 addRequired(p, 'file', @ischar);
-addParameter(p, 'flagDebug', false, @islogical);
+addParameter(p, 'debug', false, @islogical);
 addParameter(p, 'nMaxBin', [], @isnumeric);
-addParameter(p, 'autoParse', true, @islogical);
 
 parse(p, file, varargin{:});
 
@@ -44,7 +41,7 @@ end
 
 mTime = datenum(file((end-16):(end-4)), 'yymmdd-HHMMSS');
 
-if p.Results.flagDebug
+if p.Results.debug
     fprintf('Reading %s\n', file);
 end
 
