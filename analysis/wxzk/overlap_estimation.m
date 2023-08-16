@@ -2,14 +2,14 @@ clc;
 %close all;
 
 %% Parameter Definition
-dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\7\1\H_SCAN30_150_2_20230701200244';
+dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\8\10\H_SCAN30_150_2_20230810204742';
 distOffset = 48.75;
-olFile = 'overlap_0701.mat';
-linFitRange = [700, 1500];
+olFile = 'overlap_0809.mat';
+linFitRange = [1200, 1700];
 
 %% List Data Files
 dataFiles = listfile(dataFolder, '\w*.VIS', 1);
-dataFiles = dataFiles(1:15);
+dataFiles = dataFiles(1:30);
 data = readVIS(dataFiles);
 
 %% Overlap Correction
@@ -38,10 +38,10 @@ p2 = semilogy(range, fullRCS, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 
 
 xlabel('距离 (米)');
 ylabel('距离修正信号');
-title('2023年7月02日 00:01扫描周期');
+title('2023年5月27日 20:10');
 
-xlim([0, 10000]);
-ylim([1e10, 1e12]);
+xlim([0, 2000]);
+ylim([5e8, 1e12]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on');
 legend([p1, p2], 'Location', 'NorthEast');
