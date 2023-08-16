@@ -9,7 +9,7 @@
 dataPath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData';
 savePath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\Quicklooks';
 location = 'QingDao';
-tRange = [datenum(2023, 7, 3, 0, 0, 0), datenum(2023, 7, 3, 23, 59, 59)];
+tRange = [datenum(2023, 8, 11, 0, 0, 0), datenum(2023, 8, 16, 23, 59, 59)];
 visRetMethod = 'quasi';   % xian: Xian's method; quasi: Quasi retrieval
 debug = false;
 overlapCor = false;
@@ -90,7 +90,7 @@ for iDate = floor(tRange(1)):floor(tRange(2))
             mkdir(subSavePath);
         end
         
-        figure('color', 'w', 'visible', 'off');
+        figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
         rcs(snr <= 1) = NaN;
         [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, rcs, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 4e9]);
         text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
@@ -100,12 +100,12 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         text(0.6, -0.15, 'distance (km)', 'Units', 'normalized', 'FontSize', 11, 'FontWeight', 'light');
 
         pngFile = fullfile(subSavePath, sprintf('%s_range_corrected_signal.png', datestr(granuleTimes(iFolder), 'yyyymmdd_HHMMSS')));
-        export_fig(gcf, pngFile, '-r300');
+        saveas(gcf, pngFile, 'png');
         im1 = cat(4, im1, rgb2ind(imread(pngFile), myColormap('jetImage')));
         close;
 
        %% extinction
-        figure('color', 'w', 'visible', 'on');
+        figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
         [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, ext, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 1e-4]);
         text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
         ylabel(p1, 'extinction (m-1)');
@@ -114,7 +114,7 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         text(0.6, -0.15, 'distance (km)', 'Units', 'normalized', 'FontSize', 11, 'FontWeight', 'light');
 
         pngFile = fullfile(subSavePath, sprintf('%s_extinction_%s.png', datestr(granuleTimes(iFolder), 'yyyymmdd_HHMMSS'), visRetMethod));
-        export_fig(gcf, pngFile, '-r300');
+        saveas(gcf, pngFile, 'png');
         im2 = cat(4, im2, rgb2ind(imread(pngFile), myColormap('jetImage')));
         close;
 
@@ -123,7 +123,7 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         vis = ext2vis(ext);
         vis(isnan(vis)) = 1e5;
 
-        figure('color', 'w', 'visible', 'on');
+        figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
         [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, vis, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 2e4]);
         text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
         ylabel(p1, 'visiblity (m)');
@@ -132,7 +132,7 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         text(0.6, -0.15, 'distance (km)', 'Units', 'normalized', 'FontSize', 11, 'FontWeight', 'light');
 
         pngFile = fullfile(subSavePath, sprintf('%s_visibility_%s.png', datestr(granuleTimes(iFolder), 'yyyymmdd_HHMMSS'), visRetMethod));
-        export_fig(gcf, pngFile, '-r300');
+        saveas(gcf, pngFile, 'png');
         im2 = cat(4, im2, rgb2ind(imread(pngFile), flipud(myColormap('jetImage'))));
         close;
     end

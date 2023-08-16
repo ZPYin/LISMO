@@ -30,7 +30,7 @@ parse(p, visibility, varargin{:});
 
 switch lower(p.Results.method)
 case 'wmo'
-    tExt = 3 ./ visibility;
+    tExt = -log(0.02) ./ visibility;
 
 otherwise
     error('Unknown visibility calculation method.');

@@ -2,16 +2,17 @@ clc;
 close all;
 
 %% Parameter Definition
-dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\7\1\H_SCAN30_150_2_20230701200244';
+dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\5';
 distOffset = 48.75;
 olHeight = 300;
 refH = [10000, 10500];
 ratio = 7.5e16;
 lr = 50;
+iFile = 12000:12020;
 
 %% List Data Files
 dataFiles = listfile(dataFolder, '\w*.VIS', 1);
-dataFiles = dataFiles(1:35);
+dataFiles = dataFiles(iFile);
 data = readVIS(dataFiles);
 
 %% Overlap Correction
@@ -28,7 +29,7 @@ snr = (signal) ./ sqrt(squeeze(data.rawSignal(:, 1, :)));
 %% Rayleigh Fit
 figure;
 semilogy(range, rcs); hold on;
-semilogy(range, mBsc .* exp(-2 * cumsum(mExt .* [range(1), diff(range)])) * ratio);
+semilogy(range, mBsc .* exp(-2 * nancumsum(mExt .* [range(1), diff(range)])) * ratio);
 
 %% Fernald
 [aBsc1, ~] = fernald(range, mean(signal, 1), bg, lr, refH, 0, mBsc);
@@ -42,3 +43,4 @@ lc = rcs ./ ((aBsc1 + mBsc) .* exp(-2 * cumsum(-2 * (aBsc1 .* lr + mBsc) .* [ran
 
 figure; 
 plot(range, smooth(lc, 15));
+
