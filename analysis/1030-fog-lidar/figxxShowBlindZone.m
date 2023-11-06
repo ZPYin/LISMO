@@ -52,7 +52,7 @@ colormap('jet');
 
 set(gca, 'TickDir', 'out', 'YMinorTick', 'on', 'Box', 'on', 'XTick', linspace(min(data.mTime), max(data.mTime), 6), 'XTickLabel', '', 'layer', 'top');
 xlim([min(data.mTime), max(data.mTime)]);
-ylim([0, 10]);
+ylim([0.2, 10]);
 
 colorbar('Position', [0.93, 0.6, 0.02, 0.27], 'Units', 'normalized');
 
