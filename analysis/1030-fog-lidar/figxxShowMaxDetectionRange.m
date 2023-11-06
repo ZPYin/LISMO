@@ -85,11 +85,37 @@ text(height(idxSNRlt3) / 1e3 + 0.5, snr(idxSNRlt3 + 3)*10, sprintf('Distance: %5
 
 xlabel('Distance (km)');
 ylabel('SNR');
-title(sprintf('Maximum detection range (%s)', datestr(nanmean(data.mTime(isInAVGRange)), 'yyyy-mm-dd HH:MM')));
+title(sprintf('Maximum detection range (far-range channel)'));
 
 xlim([0, 20]);
 ylim([1e-1, 1e4]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.03, 0.02], 'FontSize', 12);
 
-export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'figxxMaximumdetectionrange.png'), '-r300');
+export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'figxxMaximumdetectionrange-fr.png'), '-r300');
+
+figure('Position', [0, 10, 500, 270], 'Units', 'Pixels', 'Color', 'w');
+
+tForDetectionRange = [datenum(2023, 8, 3, 0, 0, 0), datenum(2023, 8, 3, 0, 30, 0)];
+isInAVGRange = (data.mTime >= tForDetectionRange(1)) & (data.mTime <= tForDetectionRange(2));
+snr = nansum(sigPC(1, :, isInAVGRange), 3) ./ sqrt(nansum(corSigPC(1, :, isInAVGRange), 3));
+% startSearchIdx = 200;
+% idxSNRlt3 = find((snr(startSearchIdx:end) < 3) & (~ isnan(snr(startSearchIdx:end))), 1, 'first') + startSearchIdx;
+
+snr(snr <= 0) = NaN;
+p1 = semilogy(height, snr, '-b', 'LineWidth', 2);  hold on;
+% p2 = semilogy([0, 100], [3, 3], '--r');
+% p3 = scatter(height(idxSNRlt3) / 1e3, snr(idxSNRlt3 - 2), 15, 'Marker', 'o', 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
+
+% text(height(idxSNRlt3) / 1e3 + 0.5, snr(idxSNRlt3 + 3)*10, sprintf('Distance: %5.2fkm', height(idxSNRlt3) / 1e3), 'Units', 'Data', 'FontSize', 12, 'FontWeight', 'bold');
+
+xlabel('Distance (m)');
+ylabel('SNR');
+title(sprintf('Near-range channel'));
+
+xlim([0, 500]);
+ylim([1e-1, 1e4]);
+
+set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.03, 0.02], 'FontSize', 12);
+
+export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'figxxMaximumdetectionrange-nr.png'), '-r300');

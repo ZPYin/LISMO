@@ -68,7 +68,6 @@ for iFile = 1:length(dataFiles)
     data.rawSignal = cat(3, data.rawSignal, reshape(transpose(thisData.rawSignal), size(thisData.rawSignal, 2), size(thisData.rawSignal, 1), 1));
     data.channelLabel = thisData.channelLabel;
     data.hRes = thisData.hRes;
-    data.nPretrigger = thisData.nPretrigger;
     data.nShots = cat(2, data.nShots, thisData.nShots);
 end
 
