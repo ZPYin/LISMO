@@ -19,6 +19,7 @@ function [data] = readALADats(folder, varargin)
 %        rawSignal: matrix (channel x height x time)
 %        mTime: numeric
 %        nPretrigger: numeric
+%        hRes: numeric
 %        nShots: numeric
 %        channelLabel: cell
 %

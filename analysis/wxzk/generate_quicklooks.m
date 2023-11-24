@@ -9,7 +9,7 @@
 dataPath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData';
 savePath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\Quicklooks';
 location = 'QingDao';
-tRange = [datenum(2023, 8, 11, 0, 0, 0), datenum(2023, 8, 16, 23, 59, 59)];
+tRange = [datenum(2023, 11, 8, 0, 0, 0), datenum(2023, 11, 10, 23, 59, 59)];
 visRetMethod = 'quasi';   % xian: Xian's method; quasi: Quasi retrieval
 debug = false;
 overlapCor = false;

@@ -2,10 +2,12 @@ clc;
 global LISMO_VARS;
 
 %% 参数设置
-dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030\2023-08-02';
+% dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030\2023-08-02';
+dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030\2023-11-07';
 deadtime = 22;
-firstRangeBin = 15;
-tRange = [datenum(2023, 2, 2, 20, 0, 0), datenum(2023, 8, 3, 5, 0, 0)];
+firstRangeBin = 16;
+% tRange = [datenum(2023, 2, 2, 20, 0, 0), datenum(2023, 8, 3, 5, 0, 0)];
+tRange = [datenum(2023, 11, 7, 11, 18, 0), datenum(2023, 11, 7, 11, 20, 0)];
 
 %% 读取数据
 data = readALADats(dataFolder, 'tRange', tRange);
@@ -46,24 +48,28 @@ export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', '连续观测信号时空高度图
 % 最远探测距离展示图
 figure('Position', [0, 10, 500, 270], 'Units', 'Pixels', 'Color', 'w');
 
-tForDetectionRange = [datenum(2023, 7, 18, 20, 10, 0), datenum(2023, 7, 18, 21, 10, 0)];
+% tForDetectionRange = [datenum(2023, 7, 18, 20, 10, 0), datenum(2023, 7, 18, 21, 10, 0)];
+tForDetectionRange = [datenum(2023, 11, 7, 10, 0, 0), datenum(2023, 11, 7, 13, 30, 0)];
 isInAVGRange = (data.mTime >= tForDetectionRange(1)) & (data.mTime <= tForDetectionRange(2));
-snr = smooth(sum(sigPC(2, :, isInAVGRange), 3), 16) ./ sqrt(smooth(sum(corSigPC(2, :, isInAVGRange), 3), 16)) * 4;
+snr = smooth(sum(sigPC(2, :, isInAVGRange), 3), 4) ./ sqrt(smooth(sum(corSigPC(2, :, isInAVGRange), 3), 4));
+snr_nr = smooth(sum(sigPC(1, :, isInAVGRange), 3), 4) ./ sqrt(smooth(sum(corSigPC(1, :, isInAVGRange), 3), 4));
 startSearchIdx = 200;
 idxSNRlt3 = find(snr(startSearchIdx:end) < 3, 1, 'first') + startSearchIdx;
 
 snr(snr <= 0) = NaN;
 p1 = semilogy(height / 1e3, snr, '-b', 'LineWidth', 2);  hold on;
+p4 = semilogy(height / 1e3, snr_nr, '-g', 'LineWidth', 2); hold on;
 p2 = semilogy([0, 100], [3, 3], '--r');
 p3 = scatter(height(idxSNRlt3) / 1e3, snr(idxSNRlt3), 5, 'Marker', 'o', 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
 
-text(height(idxSNRlt3) / 1e3 + 0.5, snr(idxSNRlt3), sprintf('距离: %5.2f千米', height(idxSNRlt3) / 1e3), 'Units', 'Data');
+
+text(height(idxSNRlt3) / 1e3 + 0.5, snr(idxSNRlt3) * 3, sprintf('距离: %5.2f千米', height(idxSNRlt3) / 1e3), 'Units', 'Data', 'color', 'r', 'fontsize', 15);
 
 xlabel('距离 (千米)');
 ylabel('信噪比');
 title(sprintf('激光测雾雷达最远探测距离展示 (%s)', datestr(mean(data.mTime(isInAVGRange)), 'yyyy年mm月dd日 HH:MM')));
 
-xlim([0, 20]);
+xlim([0, 30]);
 ylim([1e-1, 1e4]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.03, 0.02]);

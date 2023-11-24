@@ -261,7 +261,7 @@ end
 p1 = plot((aExt + fExt) * 1e6, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 1, 'LineStyle', '--', 'DisplayName', 'True Val.'); hold on;
 lineInstances = cat(2, lineInstances, p1);
 
-xlim([0, 2e3]);
+xlim([0, 1.5e3]);
 ylim([0, 15]);
 
 xlabel('Extinction Coeff. (m^{-1})');
@@ -293,6 +293,7 @@ ylabel('');
 set(gca, 'YTickLabel', '', 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.02, 0.02], 'FontSize', 10);
 
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'improvement-error-forward-retrieval-after-iteration-line.png'), '-r300');
+export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'improvement-error-forward-retrieval-after-iteration-line.pdf'));
 
 %% Simulate forward/backward retrievals under sea-fog (weak-moderate-heavy)
 refH_backward = [14500, 15000];
@@ -496,7 +497,7 @@ p2 = plot(aExt_Bsw2 * 1e6, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineW
 % p3 = plot(aExt_Bsw1 * 1e6, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 2, 'DisplayName', 'Backward');
 p1 = plot((aExt + fExt) * 1e6, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
-xlim([0, 3000]);
+xlim([0, 1500]);
 ylim([0, 15]);
 
 xlabel('Extinction Coeff. (Mm^{-1})');

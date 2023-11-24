@@ -50,7 +50,7 @@ addParameter(p, 'nIters', 2, @isnumeric);
 parse(p, height, att_beta, molExt, molBsc, LRaer, varargin{:});
 
 diffHeight = repmat(transpose([height(1), diff(height)]), 1, size(att_beta, 2));
-mol_att = exp(- cumsum(molExt .* diffHeight, 1));
+mol_att = exp(- nancumsum(molExt .* diffHeight, 1));
 quasi_par_ext = zeros(size(molBsc));
 
 for iLoop = 1:p.Results.nIters
