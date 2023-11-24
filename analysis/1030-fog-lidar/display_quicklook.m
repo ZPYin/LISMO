@@ -3,7 +3,7 @@ clc;
 %% Parameter Initialization
 dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030';
 saveFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\quicklooks';
-date = datenum(2023, 7, 25);
+date = datenum(2023, 11, 7);
 hRes = 7.5;
 firstRangeBin = 15;
 cRange = [0, 1e6];
@@ -20,7 +20,7 @@ if flagReadData
     data.rawSignal = [];
     for iFile = 1:length(dataFiles)
         fprintf('Finished %6.2f%%: reading %s\n', (iFile - 1) / length(dataFiles) * 100, dataFiles{iFile});
-        thisData = readALADat(dataFiles{iFile});
+        thisData = readALADat(dataFiles{iFile}, 'nMaxBin', 2000);
         
         data.mTime = cat(2, data.mTime, thisData.mTime);
         data.rawSignal = cat(3, data.rawSignal, reshape(thisData.rawSignal, size(thisData.rawSignal, 1), size(thisData.rawSignal, 2), 1));
@@ -30,7 +30,7 @@ if flagReadData
     rawSignal = data.rawSignal / (50 * thisData.nShots(1) * 1e-3);
     corSignal = rawSignal ./ (1 - deadtime * rawSignal * 1e-3);
 
-    bg = nanmean(corSignal(3000:3100, :, :), 1);
+    bg = nanmean(corSignal((end - 50):end, :, :), 1);
     signal = corSignal - repmat(bg, size(corSignal, 1), 1, 1);
     height = ((1:size(corSignal, 1)) - firstRangeBin + 0.5) * hRes;
     rcs = signal .* repmat(reshape(height, length(height), 1, 1), 1, size(signal, 2), size(signal, 3)).^2;
@@ -51,7 +51,7 @@ colormap('jet');
 
 set(gca, 'TickDir', 'out', 'Box', 'on');
 xlim([min(data.mTime), max(data.mTime)]);
-ylim([0, 20000]);
+ylim([0, 15000]);
 datetick(gca, 'x', 'HH:MM', 'keeplimits', 'keepticks');
 
 colorbar();
