@@ -64,7 +64,7 @@ isConverge = false;
 counter = 0;
 while ((~ isConverge) && (counter < 10))
     % 前向反演
-    [fBsc, fExt] = quasiRetrieval(range, attnBsc, repmat(mExt', 1, size(lr, 2)), repmat(mBsc', 1, size(lr, 2)), lr, 'nIters', 10);
+    [fBsc, fExt] = quasiRetrieval(range, attnBsc, repmat(mExt', 1, size(lr, 2)), repmat(mBsc', 1, size(lr, 2)), lr, 'nIters', 10, 'flagAutoConverge', true);
 
     % 特征识别
     featBefore = feat;
