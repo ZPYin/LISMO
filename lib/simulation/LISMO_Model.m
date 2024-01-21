@@ -58,7 +58,7 @@ function [dataSim] = LISMO_Model(distArr, varargin)
 %        Nb_FR: far-range background signal.
 %        Ns_FR: far-range backscattering signal.
 %        N_NR_Poiss: near-range signal with Poisson noise.
-%        N_NR: near-range siganl without Poisson noise.
+%        N_NR: near-range signal without Poisson noise.
 %        Nb_NR: near-range background signal.
 %        Ns_NR: near-range backscattering signal.
 %

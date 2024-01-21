@@ -59,6 +59,15 @@ case 'marine-heavy'
     aExtFunc = @(h) (-aExtMax / (layerTop - layerBase).^2 .* (h - layerBase).^2 + aExtMax) .* ((h >= layerBase) & (h <= layerTop));
     aBscFunc = @(h) aExtFunc(h) / lr;
 
+case 'pollution'
+    layerBase = 0;
+    midLayer = 1000;
+    layerTop = 1500;
+    lr = 55;
+    aExtMax = 80e-6;
+    aExtFunc = @(h) (aExtMax * ((h <= midLayer) & (h > layerBase)) + aExtMax * ((layerTop - h) / (layerTop - midLayer)) .* ((h >= midLayer) & (h <= layerTop)));
+    aBscFunc = @(h) aExtFunc(h) / lr;
+
 otherwise
     error('Unknown meteorological data type.');
 end

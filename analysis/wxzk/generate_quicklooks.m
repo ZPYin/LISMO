@@ -8,11 +8,13 @@
 %% Parameter Definition
 dataPath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData';
 savePath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\Quicklooks';
-location = 'QingDao';
-tRange = [datenum(2023, 11, 8, 0, 0, 0), datenum(2023, 11, 10, 23, 59, 59)];
-visRetMethod = 'quasi';   % xian: Xian's method; quasi: Quasi retrieval
+location = 'QingDao1';
+tRange = [datenum(2023, 12, 25, 0, 0, 0), datenum(2023, 12, 31, 23, 59, 59)];
+visRetMethod = 'xian';   % xian: Xian's method; quasi: Quasi retrieval
 debug = false;
-overlapCor = false;
+olHeight = 1000;
+overlapCor = true;
+overlapFile = 'C:\Users\ZPYin\Documents\Coding\Matlab\LISMO\analysis\wxzk\near-sea-shore-measurement\2023-12-29\overlap_20231229.mat';
 
 for iDate = floor(tRange(1)):floor(tRange(2))
     fprintf('Finished %6.2f%%\n', (iDate - floor(tRange(1))) / (floor(tRange(2)) - floor(tRange(1))) * 100);
@@ -61,18 +63,25 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         bg = nanmean(squeeze(data.rawSignal(:, 1, 2900:2950)), 2);
         signal = squeeze(data.rawSignal(:, 1, :)) - repmat(bg, 1, data.nBins(1));
         if overlapCor
-            load('overlap.mat');
-            signal = signal ./ repmat(ov, size(signal, 1), 1);
+            ol = load(overlapFile);
+            signal = signal ./ repmat(ol.ov', size(signal, 1), 1);
         end
         rcs = signal .* repmat(range, length(data.hRes), 1).^2;
         snr = (signal) ./ sqrt(squeeze(data.rawSignal(:, 1, :)));
+        lowSNRMask = false(size(signal));
+        for iPrf = 1:size(rcs, 1)
+            snrPrf = snr(iPrf, :);
+            snrPrf(range < olHeight) = NaN;
+            snrLow = find(snrPrf < 1, 1);
+            lowSNRMask(iPrf, snrLow:end) = true;
+        end
 
         %% Visbility Retrieval
         ext = NaN(size(signal));
         for iPrf = 1:length(data.hRes)
 
             if strcmpi(visRetMethod, 'xian')
-                ext(iPrf, :) = extRet_Xian(range, signal(iPrf, :), bg(iPrf), 'minSNR', 0.1);
+                ext(iPrf, :) = extRet_Xian(range, signal(iPrf, :), bg(iPrf), 'minSNR', 0.5, 'rangeFullOverlap', 200);
             elseif strcmpi(visRetMethod, 'quasi')
                 [~, ext(iPrf, :)] = extRet_Holger(range, signal(iPrf, :), ...
                     'calibration_constant', 1.9e15, ...
@@ -89,15 +98,14 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         if ~ exist(subSavePath, 'dir')
             mkdir(subSavePath);
         end
-        
         figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
-        rcs(snr <= 1) = NaN;
-        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, rcs, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 4e9]);
-        text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
-        ylabel(p1, 'range cor. sig.');
+        rcs(lowSNRMask) = NaN;
+        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, rcs, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'tickSize', 12, 'tickColor', 'm', 'typeRose', 'default', 'cRange', [0, 1e10]);
+        ylabel(p1, '距离修正信号');
         set(p1, 'location', 'westoutside');
         colormap(gca, myColormap('jetImage'));
-        text(0.6, -0.15, 'distance (km)', 'Units', 'normalized', 'FontSize', 11, 'FontWeight', 'light');
+        text(0.3, 1.1, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
+        text(0.6, -0.05, '距离 (千米)', 'Units', 'normalized', 'FontSize', 13, 'FontWeight', 'Bold');
 
         pngFile = fullfile(subSavePath, sprintf('%s_range_corrected_signal.png', datestr(granuleTimes(iFolder), 'yyyymmdd_HHMMSS')));
         saveas(gcf, pngFile, 'png');
@@ -105,31 +113,32 @@ for iDate = floor(tRange(1)):floor(tRange(2))
         close;
 
        %% extinction
-        figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
-        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, ext, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 1e-4]);
-        text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
-        ylabel(p1, 'extinction (m-1)');
-        set(p1, 'location', 'westoutside');
-        colormap(gca, myColormap('jetImage'));
-        text(0.6, -0.15, 'distance (km)', 'Units', 'normalized', 'FontSize', 11, 'FontWeight', 'light');
+        % figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
+        % [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, ext, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'tickSize', 12, 'tickColor', 'm', 'typeRose', 'default', 'cRange', [0, 1e-4]);
+        % ylabel(p1, 'extinction (m-1)');
+        % set(p1, 'location', 'westoutside');
+        % colormap(gca, myColormap('jetImage'));
+        % text(0.3, 1.1, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
+        % text(0.6, -0.05, 'distance (km)', 'Units', 'normalized', 'FontSize', 13, 'FontWeight', 'Bold');
 
-        pngFile = fullfile(subSavePath, sprintf('%s_extinction_%s.png', datestr(granuleTimes(iFolder), 'yyyymmdd_HHMMSS'), visRetMethod));
-        saveas(gcf, pngFile, 'png');
-        im2 = cat(4, im2, rgb2ind(imread(pngFile), myColormap('jetImage')));
-        close;
+        % pngFile = fullfile(subSavePath, sprintf('%s_extinction_%s.png', datestr(granuleTimes(iFolder), 'yyyymmdd_HHMMSS'), visRetMethod));
+        % saveas(gcf, pngFile, 'png');
+        % im2 = cat(4, im2, rgb2ind(imread(pngFile), myColormap('jetImage')));
+        % close;
 
-        %% Extinction Retrieval
-        ext(snr < 3) = NaN;
+        %% visiblity
+        ext(lowSNRMask & (snr < 3)) = NaN;
         vis = ext2vis(ext);
         vis(isnan(vis)) = 1e5;
 
         figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
-        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, vis, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'typeRose', 'default', 'cRange', [0, 2e4]);
-        text(0.3, 1.2, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
-        ylabel(p1, 'visiblity (m)');
+        [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, vis * 1e-3, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'tickSize', 12, 'tickColor', 'm', 'typeRose', 'default', 'cRange', [0, 30]);
+        ylabel(p1, '能见度 (千米)');
         set(p1, 'location', 'westoutside');
-        colormap(gca, flipud(myColormap('jetImage')));
-        text(0.6, -0.15, 'distance (km)', 'Units', 'normalized', 'FontSize', 11, 'FontWeight', 'light');
+        load('vis_colormap.mat');
+        colormap(gca, double(visColorbar) / 255);
+        text(0.3, 1.1, sprintf('%s', datestr(mean(data.startTime), 'yyyy-mm-dd HH:MM')), 'Units', 'normalized', 'FontSize', 12, 'FontWeight', 'Bold');
+        text(0.6, -0.05, '距离 (千米)', 'Units', 'normalized', 'FontSize', 13, 'FontWeight', 'Bold');
 
         pngFile = fullfile(subSavePath, sprintf('%s_visibility_%s.png', datestr(granuleTimes(iFolder), 'yyyymmdd_HHMMSS'), visRetMethod));
         saveas(gcf, pngFile, 'png');

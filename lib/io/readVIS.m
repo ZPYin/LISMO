@@ -1,5 +1,5 @@
 function [data] = readVIS(filename, varargin)
-% READVIS Read fog lidar from WXZK.
+% READVIS Read fog lidar data from WXZK.
 %
 % USAGE:
 %    [data] = readVIS(filename)
@@ -9,6 +9,10 @@ function [data] = readVIS(filename, varargin)
 %        absolute path of data file(s).
 %
 % KEYWORDS:
+%    tRange: 2-element array
+%        data temporal range.
+%    isDir: logical
+%        flag to show whether `filename` is a directory.
 %    debug: logical
 %        whether to start Debug mode. (default: false)
 %
@@ -37,16 +41,35 @@ p = inputParser;
 p.KeepUnmatched = true;
 
 addRequired(p, 'filename', @(x) ischar(x) || iscell(x));
+addParameter(p, 'tRange', [], @isnumeric);
+addParameter(p, 'isDir', false, @islogical);
 addParameter(p, 'debug', false, @islogical);
 
 parse(p, filename, varargin{:});
 
-if ischar(filename)
+if ischar(filename) && p.Results.isDir
+    files = listfile(filename, '.*', 1);
+elseif ischar(filename) && (~ p.Results.isDir)
     files = {filename};
 else
     files = filename;
 end
 
+%% Filter Data Files
+dataSearchedFiles = cell(0);
+for iFile = 1:length(files)
+    fileTime = parseVISFileTime(files{iFile});
+
+    if isempty(p.Results.tRange)
+        dataSearchedFiles = cat(2, dataSearchedFiles, files{iFile});
+    elseif (fileTime >= p.Results.tRange(1)) && (fileTime <= p.Results.tRange(2))
+        dataSearchedFiles = cat(2, dataSearchedFiles, files{iFile});
+    else
+        continue;
+    end
+end
+
+%% Read Data Files
 data = struct();
 data.hRes = [];
 data.nShots = [];
@@ -62,13 +85,12 @@ data.latitude = [];
 data.longitude = [];
 data.asl = [];
 data.speed = [];
-
-for iFile = 1:length(files)
+for iFile = 1:length(dataSearchedFiles)
     if (p.Results.debug)
-        fprintf('Finished %6.5f%%: reading %s\n', (iFile - 1) / length(files) * 100, files{iFile});
+        fprintf('Finished %6.5f%%: reading %s\n', (iFile - 1) / length(dataSearchedFiles) * 100, dataSearchedFiles{iFile});
     end
 
-    singlePrfData = readSingleVIS(files{iFile}, varargin{:});
+    singlePrfData = readSingleVIS(dataSearchedFiles{iFile}, varargin{:});
 
     data.hRes = cat(2, data.hRes, singlePrfData.hRes);
     data.nShots = cat(2, data.nShots, singlePrfData.nShots);

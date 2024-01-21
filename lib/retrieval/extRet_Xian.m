@@ -38,16 +38,32 @@ addParameter(p, 'minSNR', 0.5, @isnumeric);
 parse(p, range, signal, bg, varargin{:});
 
 [~, idxMinOL] = min(abs(range - p.Results.rangeFullOverlap));
-SNR = lidarSNR(signal, bg, 'bgBins', [length(signal) - 100, length(signal) - 50]);
+SNR = lidarSNR(signal, bg, 'bgBins', [length(signal) - 15, length(signal)]);
 RCS = signal .* range.^2;
 RCS_A = RCS(idxMinOL);
 ratioAB = RCS / RCS_A;
+detectLimitIdx = find((range >= p.Results.rangeFullOverlap) & (SNR <= p.Results.minSNR), 1);
 isInvalid = (range < p.Results.rangeFullOverlap) | (SNR <= p.Results.minSNR);
-ratioAB(isInvalid | (ratioAB <= 0)) = NaN;
-[~, idxB] = min(ratioAB);
-RCS_B = RCS(idxB);
 
-aExt = NaN(size(RCS));
+aExt = NaN(size(signal));
+if (~ isempty(detectLimitIdx))
+    ratioAB(isInvalid | (ratioAB <= 0)) = NaN;
+    [~, idxB] = min(ratioAB(1:detectLimitIdx));
+else
+    warning('Signal saturation.');
+    return;
+end
+
+avgLen = 8;
+if ((idxB - ceil(avgLen / 2)) > 1) && ((idxB + ceil(avgLen / 2)) < length(range))
+    RCS_B = nanmean(RCS((idxB - ceil(avgLen / 2)):(idxB + ceil(avgLen / 2))));
+elseif ((idxB - ceil(avgLen / 2)) < 1)
+    RCS_B = nanmean(RCS(1:(idxB + ((idxB - ceil(avgLen / 2)) > 1))));
+else
+    RCS_B = nanmean(RCS((idxB - ((idxB - ceil(avgLen / 2)) > 1)):end));
+end
+% RCS_B = RCS(idxB);
+
 if (idxB ~= idxMinOL)
     I_A_B = trapz(range(idxMinOL:idxB), RCS(idxMinOL:idxB));
 else

@@ -12,9 +12,14 @@ distArr = 7.5:15:20000;
 eleAngle = 3;
 laserWL = 1030;
 runSimulation = true;
+savePath = fullfile(savePath);
 
 %% Signal Simulation
 if runSimulation
+
+    if (~ exist(savePath, 'dir'))
+        mkdir(savePath);
+    end
 
     % clear sky
     height = distArr * sin(eleAngle / 180 * pi);
@@ -23,7 +28,7 @@ if runSimulation
     [aBsc, aExt] = AerModel(height, 'scene', 'marine-moderate');
     [fBsc, fExt] = SeaFogModel(distArr, laserWL, 'scene', seaFogType);
     dataSim = LISMO_Model(distArr, 'tBsc', mBsc + aBsc + fBsc, 'tExt', mExt + aExt + fExt, 'eleAngle', eleAngle, 'laserWL', laserWL, 'visible', 'off');
-    save(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
+    save(fullfile(savePath, sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
 
     % sea-fog-weak
     seaFogType = 'sea-fog-weak';
@@ -31,7 +36,7 @@ if runSimulation
     [aBsc, aExt] = AerModel(height, 'scene', 'marine-moderate');
     [fBsc, fExt] = SeaFogModel(distArr, laserWL, 'scene', seaFogType);
     dataSim = LISMO_Model(distArr, 'tBsc', mBsc + aBsc + fBsc, 'tExt', mExt + aExt + fExt, 'eleAngle', eleAngle, 'laserWL', laserWL, 'visible', 'off');
-    save(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
+    save(fullfile(savePath, sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
 
     % sea-fog-moderate
     seaFogType = 'sea-fog-moderate';
@@ -39,7 +44,7 @@ if runSimulation
     [aBsc, aExt] = AerModel(height, 'scene', 'marine-moderate');
     [fBsc, fExt] = SeaFogModel(distArr, laserWL, 'scene', seaFogType);
     dataSim = LISMO_Model(distArr, 'tBsc', mBsc + aBsc + fBsc, 'tExt', mExt + aExt + fExt, 'eleAngle', eleAngle, 'laserWL', laserWL, 'visible', 'off');
-    save(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
+    save(fullfile(savePath, sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
 
     % sea-fog-heavy
     seaFogType = 'sea-fog-heavy';
@@ -47,12 +52,12 @@ if runSimulation
     [aBsc, aExt] = AerModel(height, 'scene', 'marine-moderate');
     [fBsc, fExt] = SeaFogModel(distArr, laserWL, 'scene', seaFogType);
     dataSim = LISMO_Model(distArr, 'tBsc', mBsc + aBsc + fBsc, 'tExt', mExt + aExt + fExt, 'eleAngle', eleAngle, 'laserWL', laserWL, 'visible', 'off');
-    save(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
+    save(fullfile(savePath, sprintf('%s.mat', seaFogType)), 'distArr', 'eleAngle', 'aBsc', 'aExt', 'fBsc', 'fExt', 'mBsc', 'mExt', 'dataSim');
 
 end
 
 %% Simulate forward/backward retrievals
-load(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', 'sea-fog-none.mat'));
+load(fullfile(savePath, 'sea-fog-none.mat'));
 refH_backward = [9000, 9500];
 visibility = ext2vis(mExt * (laserWL / 550)^4 + aExt * (laserWL / 550)^0.5);
 
@@ -72,7 +77,7 @@ refH_forward = [80, 100];
 refHIdx = (distArr >= refH_forward(1)) & (distArr <= refH_forward(2));
 sigNoBg = dataSim.N_FR_Poiss - dataSim.Nb_FR - dataSim.Nd_FR;
 lidarConst = mean(sigNoBg(refHIdx)) * (mean(distArr(refHIdx))^2) / mean(aBsc(refHIdx) + mBsc(refHIdx) + fBsc(refHIdx));
-[aBsc3, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', 20, 'nIters', 50);
+[~, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', 20, 'nIters', 50);
 aExt3 = transpose(aExt3);
 visibility3 = ext2vis(aExt3 * (laserWL / 550)^0.5 + mExt * (laserWL / 550)^4);
 
@@ -85,7 +90,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 xlim([1e9, 1e12]);
 ylim([0, 15]);
@@ -116,10 +121,10 @@ legend([p1, p2, p3, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 1);
+plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 1);
 hold on;
-p2 = plot((aExt1 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 1);
-p1 = plot((aExt2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 1);
+plot((aExt1 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 1);
+plot((aExt2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 1);
 
 plot([15, 15], [0, 100], '-.k');
 plot([-15, -15], [0, 100], '-.k');
@@ -144,7 +149,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
 ylim([0, 15]);
@@ -175,10 +180,10 @@ legend([p1, p2, p3, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((visibility3 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 1);
+plot((visibility3 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 1);
 hold on;
-p2 = plot((visibility1 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 1);
-p1 = plot((visibility2 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 1);
+plot((visibility1 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 1);
+plot((visibility2 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 1);
 
 plot([0, 0], [0, 100], 'k--');
 
@@ -196,7 +201,7 @@ set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTickLabel', '', 'TickLen', [0
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'retrieval-cmp-visibility-no-sea-fog.png'), '-r300');
 
 %% Simulate improvements after iterations (sea-fog conditions)
-load(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', 'sea-fog-moderate.mat'));
+load(fullfile(savePath, 'sea-fog-moderate.mat'));
 visibility = ext2vis(mExt * (laserWL / 550)^4 + aExt * (laserWL / 550)^0.5);
 nLoops = 50;
 
@@ -299,7 +304,7 @@ export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'improvement-error-forw
 refH_backward = [14500, 15000];
 
 % weak
-load(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', 'sea-fog-weak.mat'));
+load(fullfile(savePath, 'sea-fog-weak.mat'));
 visibility = ext2vis(mExt * (laserWL / 550)^4 + (aExt + fExt) * (laserWL / 550)^0.5);
 
 lr = (aExt + fExt) ./ (aBsc + fBsc);
@@ -320,7 +325,7 @@ refH_forward = [80, 100];
 refHIdx = (distArr >= refH_forward(1)) & (distArr <= refH_forward(2));
 sigNoBg = dataSim.N_FR_Poiss - dataSim.Nb_FR - dataSim.Nd_FR;
 lidarConst = mean(sigNoBg(refHIdx)) * (mean(distArr(refHIdx))^2) / mean(aBsc(refHIdx) + mBsc(refHIdx) + fBsc(refHIdx));
-[aBsc3, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', lr', 'nIters', 15);
+[~, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', lr', 'nIters', 15);
 aExt3 = transpose(aExt3);
 visibility3 = ext2vis(aExt3 * (laserWL / 550)^0.5 + mExt * (laserWL / 550)^4);
 
@@ -333,7 +338,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim([1e9, 1e12]);
 ylim([0, 15]);
@@ -364,9 +369,9 @@ legend([p1, p2, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
+plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
 hold on;
-p2 = plot((aExt_Bsw2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
+plot((aExt_Bsw2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
 % p1 = plot((aExt_Bsw1 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 2);
 
 plot([15, 15], [0, 100], '-.k');
@@ -392,7 +397,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
 ylim([0, 15]);
@@ -423,10 +428,10 @@ legend([p1, p2, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((visibility3 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
+plot((visibility3 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
 hold on;
 % p2 = plot((visibility1 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 2);
-p1 = plot((visibility2 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
+plot((visibility2 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
 
 plot([0, 0], [0, 100], 'k--');
 
@@ -444,7 +449,7 @@ set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTickLabel', '', 'TickLen', [0
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'retrieval-cmp-visibility-sea-fog-weak.png'), '-r300');
 
 % moderate
-load(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', 'sea-fog-moderate.mat'));
+load(fullfile(savePath, 'sea-fog-moderate.mat'));
 visibility = ext2vis(mExt * (laserWL / 550)^4 + (aExt + fExt) * (laserWL / 550)^0.5);
 
 lr = (aExt + fExt) ./ (aBsc + fBsc);
@@ -465,7 +470,7 @@ refH_forward = [80, 100];
 refHIdx = (distArr >= refH_forward(1)) & (distArr <= refH_forward(2));
 sigNoBg = dataSim.N_FR_Poiss - dataSim.Nb_FR - dataSim.Nd_FR;
 lidarConst = mean(sigNoBg(refHIdx)) * (mean(distArr(refHIdx))^2) / mean(aBsc(refHIdx) + mBsc(refHIdx) + fBsc(refHIdx));
-[aBsc3, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', lr', 'nIters', 50);
+[~, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', lr', 'nIters', 50);
 aExt3 = transpose(aExt3);
 visibility3 = ext2vis(aExt3 * (laserWL / 550)^0.5 + mExt * (laserWL / 550)^4);
 
@@ -478,7 +483,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim([1e9, 1e12]);
 ylim([0, 15]);
@@ -509,9 +514,9 @@ legend([p1, p2, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
+plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
 hold on;
-p2 = plot((aExt_Bsw2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
+plot((aExt_Bsw2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
 % p1 = plot((aExt_Bsw1 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 2);
 
 plot([15, 15], [0, 100], '-.k');
@@ -537,7 +542,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
 ylim([0, 15]);
@@ -568,15 +573,16 @@ legend([p1, p2, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((visibility3 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
 hold on;
+plot((visibility3 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
 % p2 = plot((visibility1 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 2);
-p1 = plot((visibility2 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
+plot((visibility2 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
 
 plot([0, 0], [0, 100], 'k--');
 
 plot([30, 30], [0, 100], '-.k');
 plot([-30, -30], [0, 100], '-.k');
+hold off;
 
 xlim([-50, 50]);
 ylim([0, 15]);
@@ -589,7 +595,7 @@ set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTickLabel', '', 'TickLen', [0
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'retrieval-cmp-visibility-sea-fog-moderate.png'), '-r300');
 
 % heavy
-load(fullfile(LISMO_VARS.projectDir, 'results', 'retrieval-test', 'sea-fog-heavy.mat'));
+load(fullfile(savePath, 'sea-fog-heavy.mat'));
 visibility = ext2vis(mExt * (laserWL / 550)^4 + (aExt + fExt) * (laserWL / 550)^0.5);
 
 lr = (aExt + fExt) ./ (aBsc + fBsc);
@@ -610,7 +616,7 @@ refH_forward = [80, 100];
 refHIdx = (distArr >= refH_forward(1)) & (distArr <= refH_forward(2));
 sigNoBg = dataSim.N_FR_Poiss - dataSim.Nb_FR - dataSim.Nd_FR;
 lidarConst = mean(sigNoBg(refHIdx)) * (mean(distArr(refHIdx))^2) / mean(aBsc(refHIdx) + mBsc(refHIdx) + fBsc(refHIdx));
-[aBsc3, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', lr', 'nIters', 100);
+[~, aExt3] = quasiRetrieval(distArr, sigNoBg .* distArr'.^2 / lidarConst, mExt', mBsc', lr', 'nIters', 100);
 aExt3 = transpose(aExt3);
 visibility3 = ext2vis(aExt3 * (laserWL / 550)^0.5 + mExt * (laserWL / 550)^4);
 
@@ -623,7 +629,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim([]);
 ylim([0, 15]);
@@ -654,9 +660,9 @@ legend([p1, p2, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
+plot((aExt3 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
 hold on;
-p2 = plot((aExt_Bsw2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
+plot((aExt_Bsw2 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
 % p1 = plot((aExt_Bsw1 - aExt - fExt) ./ (aExt + fExt) * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 2);
 
 plot([15, 15], [0, 100], '-.k');
@@ -682,7 +688,7 @@ figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 subplot('Position', figPos(1, :), 'Units', 'normalized');
 rcsTmp = sigNoBg' .* distArr.^2;
 rcsTmp(rcsTmp <= 0) = NaN;
-p1 = semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
+semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
 ylim([0, 15]);
