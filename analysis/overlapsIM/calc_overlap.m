@@ -7,8 +7,8 @@ theta1 = 0.05e-3;   % divergence of laser beam. (rad)
 rOF = 75e-6;   % core width of optical fiber. (200 um for 3-stage; 150 um for 7-stage)
 
 % 3-stage
-% fImg = [0.500, 0.50245, 0.50498];
-% ox = [-0.00008, -0.001, -0.002];
+% fImg = [0.500, 0.50245, 0.50498];   % distance between focal plane and the primary mirrow of the telescope. (m)
+% ox = [-0.00008, -0.001, -0.002];   % projection of each fiber bundle stage to the optical axis of the telescope on the x axis. (m)
 
 % 7-stage
 % fImg = [0.500, 0.500 + (-0.02117 + 0.022), 0.500 + (0.022 - 0.02034), 0.5 + (0.022 - 0.01951), 0.5 + (0.022 - 0.01868), 0.5 + (0.022 - 0.01785), 0.5 + (0.022 - 0.01702)];

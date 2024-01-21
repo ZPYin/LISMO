@@ -42,6 +42,8 @@ function [varargout] = polarPcolor(R,theta,Z,varargin)
 %        (it overwrites Ncircles if necessary)
 %        - GridLineStyle: grid line style
 %        - RLim: 2-element array to control the radius range.
+%        - tickSize: 11
+%        - tickColor: 'k'
 %
 %
 % OUTPUT
@@ -67,6 +69,8 @@ p.addOptional('autoOrigin','on');
 p.addOptional('Nspokes',8);
 p.addOptional('labelR','');
 p.addOptional('RtickLabel',[]);
+p.addOptional('tickSize',10);
+p.addOptional('tickColor','k');
 p.addOptional('colBar',1);
 p.addOptional('cRange',[]);
 p.addOptional('Rscale','linear');
@@ -78,16 +82,18 @@ p.addOptional('GridLineStyle', '-');
 p.addOptional('RLim', []);
 p.parse(varargin{:});
 Ncircles = p.Results.Ncircles;
-Nspokes = p.Results.Nspokes ;
-labelR = p.Results.labelR ;
-RtickLabel = p.Results.RtickLabel ;
-colBar = p.Results.colBar ;
-Rscale = p.Results.Rscale ;
-autoOrigin = p.Results.autoOrigin ;
-myColorMap = p.Results.colormap ;
-ncolor = p.Results.ncolor ;
-circPos = p.Results.circlesPos ;
-typeRose = p.Results.typeRose ;
+Nspokes = p.Results.Nspokes;
+labelR = p.Results.labelR;
+RtickLabel = p.Results.RtickLabel;
+tickSize = p.Results.tickSize;
+tickColor = p.Results.tickColor;
+colBar = p.Results.colBar;
+Rscale = p.Results.Rscale;
+autoOrigin = p.Results.autoOrigin;
+myColorMap = p.Results.colormap;
+ncolor = p.Results.ncolor;
+circPos = p.Results.circlesPos;
+typeRose = p.Results.typeRose;
 gridLineStyle = p.Results.GridLineStyle;
 rlim = p.Results.RLim;
 
@@ -243,12 +249,14 @@ end
                     text(1.05.*contourD(end).*cost(kk),...
                         1.05.*contourD(end).*sint(kk),...
                         [num2str(spokeMesh(kk),3),char(176)],...
+                        'FontSize', tickSize, 'Color', tickColor, ...
                         'horiz', 'center', 'vert', 'middle');
                 end
             else
                 text(1.05.*contourD(end).*cost(kk),...
                     1.05.*contourD(end).*sint(kk),...
                     [num2str(spokeMesh(kk),3),char(176)],...
+                    'FontSize', tickSize, 'Color', tickColor, ...
                     'horiz', 'center', 'vert', 'middle');
             end
             
@@ -321,6 +329,7 @@ end
             t = text(contourD(kk).*cosd(position),...
                 (contourD(kk)).*sind(position),...
                 rtick,'verticalalignment','BaseLine',...
+                'FontSize', tickSize, 'Color', tickColor, ...
                 'horizontalAlignment', 'right',...
                 'handlevisibility','off','parent',cax);
             if min(round(abs(90-theta)))<5 && strcmpi(typeRose,'default'),
@@ -343,12 +352,14 @@ end
                 t = text(contourD(end).*1.3.*cosd(position),...
                     contourD(end).*1.3.*sind(position),...
                     [labelR],'verticalalignment','bottom',...
+                    'FontSize', tickSize, 'Color', tickColor, ...
                     'horizontalAlignment', 'right',...
                     'handlevisibility','off','parent',cax);
             else
                 t = text(contourD(end).*0.6.*cosd(position),...
                     contourD(end).*0.6.*sind(position),...
                     [labelR],'verticalalignment','bottom',...
+                    'FontSize', tickSize, 'Color', tickColor, ...
                     'horizontalAlignment', 'right',...
                     'handlevisibility','off','parent',cax);
             end

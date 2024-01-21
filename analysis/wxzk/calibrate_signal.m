@@ -2,14 +2,14 @@ clc;
 close all;
 
 %% Parameter Definition
-dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\11\10\H_SCAN15_135_2_20231110002432';   % input a scanning period. Path of scanning data.
-tRnage = [datenum(2023, 11, 10, 0, 0, 0), datenum(2023, 11, 10, 0, 30, 0)];   % temporal range for data input
+dataFolder = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData\QingDao\2023\12\27\H_SCAN15_135_2_20231227085349';   % input a scanning period. Path of scanning data.
+tRnage = [datenum(2023, 12, 25, 0, 0, 0), datenum(2023, 12, 25, 0, 30, 0)];   % temporal range for data input
 distOffset = -52.5;   % distance offset. (m)
 olHeight = 300;   % 
-refDist = [10000, 10500];
-calDist = [2000, 4000];
+refDist = [2200, 3000];
+calDist = [1000, 2000];
 lr = 50;
-maxRange = 10;   % km
+maxRange = 5;   % km
 overlapCor = false;
 overlapFile = '';
 
@@ -119,7 +119,7 @@ plot([refDist(2), refDist(2)] * 1e-3, [1e-20, 1e20], '--k');
 xlabel('水平距离 (千米)');
 ylabel('衰减后向散射系数 (m-1sr-1)');
 
-xlim([0, 20]);
+xlim([0, maxRange]);
 ylim([1e-9, max(meanRCS * ratioL2M) * 4]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'YScale', 'log');
@@ -139,8 +139,8 @@ plot([refDist(2), refDist(2)] * 1e-3, [1e-20, 1e20], '--k');
 xlabel('水平距离 (千米)');
 ylabel('消光系数 (m-1)');
 
-xlim([0, 20]);
-ylim([-0.5, 150]);
+xlim([0, maxRange]);
+ylim([-0.5, 500]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on');
 
@@ -165,7 +165,7 @@ text(0.3, 0.8, sprintf('雷达标定常数平均: %5.3e\\pm%5.3e\n参考分子标定常数:%5.3e
 xlabel('水平距离 (千米)');
 ylabel('雷达标定常数 (每单廓线)');
 
-xlim([0, 20]);
+xlim([0, maxRange]);
 ylim([0., lcMean * 3]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on');

@@ -2,9 +2,9 @@ clc;
 close all;
 
 %% Parameter Definition
-sigma1 = 1;
-sigma2 = 4;
-length2 = 4;
+sigma1 = 1;   % radius of the outter ring.
+sigma2 = 4;   % radius of the inner ring.
+length2 = 4;  % shadow of inner plane.
 x = -30:0.01:30;
 
 func1 = @(x) exp(- (x - 0).^2 / (2 * sigma1^2));
