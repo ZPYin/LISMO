@@ -83,7 +83,7 @@ while ((~ isConverge) && (counter < 10))
 end
 
 %% 能见度反演
-vis = ext2vis((fExt + repmat(mExt', 1, size(lr, 2))) * (1030 / 532) .^ 1.7);
+vis = ext2vis(fExt * (1030 / 532) .^ 1.7 + repmat(mExt', 1, size(lr, 2)));
 
 % 数据可视化
 figure('Position', [0, 20, 500, 600], 'Units', 'Pixels', 'Color', 'w');
