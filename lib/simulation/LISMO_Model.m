@@ -37,14 +37,22 @@ function [dataSim] = LISMO_Model(distArr, varargin)
 %        integration time for single range bin. (default: 100 ns)
 %    FWHM: double
 %        full width at half maximum of narrowband filter. (default: 3 nm)
-%    ND_FR: double
-%        optical depth of neutral density filter at far-range channel. (default: 2)
-%    ND_NR: double
-%        optical depth of neutral density filter at near-range channel. (default: 2)
+%    NDRecv_FR: double
+%        optical efficiency of trasmitter at far-range channel. (default: 0.3)
+%    NDRecv_NR: double
+%        optical efficiency of trasmitter at near-range channel. (default: 0.3)
+%    NDEmit_FR: double
+%        optical depth of neutral density filter at far-range channel. (default: 0.8)
+%    NDEmit_NR: double
+%        optical depth of neutral density filter at near-range channel. (default: 0.8)
 %    tBsc: array
 %        total backscatter coefficient. (m^-1sr^-1)
 %    tExt: array
 %        total extinction coefficient. (m^-1)
+%    OvFR: array
+%        overlap for far-range channel.
+%    OvNR: array
+%        overlap for near-range channel.
 %    visible: char
 %        whether to display the signal profile. ('on' (default) | 'off')
 %    ylim: 2-element array
@@ -84,33 +92,45 @@ addParameter(p, 'darkCountNR', 250, @isnumeric);
 addParameter(p, 'accShots', 500000, @isnumeric);
 addParameter(p, 'acqTime', 100, @isnumeric);
 addParameter(p, 'FWHM', 3, @isnumeric);
-addParameter(p, 'ND_FR', 2, @isnumeric);
-addParameter(p, 'ND_NR', 2, @isnumeric);
+addParameter(p, 'NDEmit_FR', 0.8, @isnumeric);
+addParameter(p, 'NDEmit_NR', 0.8, @isnumeric);
+addParameter(p, 'NDRecv_FR', 0.3, @isnumeric);
+addParameter(p, 'NDRecv_NR', 0.3, @isnumeric);
 addParameter(p, 'tBsc', [], @isnumeric);
 addParameter(p, 'tExt', [], @isnumeric);
 addParameter(p, 'visible', 'on', @ischar);
 addParameter(p, 'ylim', [0, 20], @isnumeric);
+addParameter(p, 'OzFR', [], @isnumeric);
+addParameter(p, 'OzNR', [], @isnumeric);
 
 parse(p, distArr, varargin{:});
 
 height = distArr * sin(p.Results.eleAngle / 180 * pi);
 
 %% Overlap
-OzFR = OverlapFunc(height, 'channel', 'far_range');
-OzNR = OverlapFunc(height, 'channel', 'near_range');
+if isempty(p.Results.OzFR)
+    OzFR = OverlapFunc(height, 'channel', 'far_range');
+else
+    OzFR = p.Results.OzFR;
+end
+if isempty(p.Results.OzNR)
+    OzNR = OverlapFunc(height, 'channel', 'near_range');
+else
+    OzNR = p.Results.OzNR;
+end
 
 %% Lidar Signal Composition
 % far-range
-P_FR = OzFR .* 10.^(-p.Results.ND_FR) * p.Results.pulseEn * 1e-3 * 3e8 * pi*(p.Results.dTel / 2)^2 .* p.Results.tBsc .* exp(-2 * nancumsum(p.Results.tExt .* [distArr(1), diff(distArr)])) ./ distArr.^2 / 2;
-Ns_FR = p.Results.accShots * P_FR * p.Results.acqTime * 1e-9 * p.Results.etaFR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
-Nb_FR = p.Results.accShots * 10.^(-p.Results.ND_FR) * p.Results.PB * pi * (p.Results.FOV_FR*1e-3 / 2) ^2 * p.Results.FWHM * pi * (p.Results.dTel / 2)^2 * p.Results.acqTime * 1e-9 * p.Results.etaFR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
+P_FR = OzFR .* 10.^(-p.Results.NDEmit_FR) * p.Results.pulseEn * 1e-3 * 3e8 * pi*(p.Results.dTel / 2)^2 .* p.Results.tBsc .* exp(-2 * nancumsum(p.Results.tExt .* [distArr(1), diff(distArr)])) ./ distArr.^2 / 2;
+Ns_FR = 10.^(-p.Results.NDRecv_FR) * p.Results.accShots * P_FR * p.Results.acqTime * 1e-9 * p.Results.etaFR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
+Nb_FR = p.Results.accShots * 10.^(-p.Results.NDRecv_FR) * p.Results.PB * pi * (p.Results.FOV_FR*1e-3 / 2) ^2 * p.Results.FWHM * pi * (p.Results.dTel / 2)^2 * p.Results.acqTime * 1e-9 * p.Results.etaFR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
 Nd_FR = p.Results.accShots * p.Results.darkCountFR * p.Results.acqTime * 1e-9;
 N_FR = Ns_FR + Nb_FR + Nd_FR;
 
 % near-range
-P_NR = OzNR .* 10.^(-p.Results.ND_NR) * p.Results.pulseEn * 1e-3 * 3e8 * pi*(p.Results.dTel / 2)^2 .* p.Results.tBsc .* exp(-2 * nancumsum(p.Results.tExt .* [distArr(1), diff(distArr)])) ./ distArr.^2 / 2;
-Ns_NR = p.Results.accShots * P_NR * p.Results.acqTime * 1e-9 * p.Results.etaNR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
-Nb_NR = p.Results.accShots * 10.^(-p.Results.ND_NR) * p.Results.PB * pi * (p.Results.FOV_NR*1e-3 / 2) ^2 * p.Results.FWHM * pi * (p.Results.dTel / 2)^2 * p.Results.acqTime * 1e-9 * p.Results.etaNR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
+P_NR = OzNR .* 10.^(-p.Results.NDEmit_NR) * p.Results.pulseEn * 1e-3 * 3e8 * pi*(p.Results.dTel / 2)^2 .* p.Results.tBsc .* exp(-2 * nancumsum(p.Results.tExt .* [distArr(1), diff(distArr)])) ./ distArr.^2 / 2;
+Ns_NR = 10.^(-p.Results.NDRecv_NR) * p.Results.accShots * P_NR * p.Results.acqTime * 1e-9 * p.Results.etaNR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
+Nb_NR = p.Results.accShots * 10.^(-p.Results.NDRecv_NR) * p.Results.PB * pi * (p.Results.FOV_NR*1e-3 / 2) ^2 * p.Results.FWHM * pi * (p.Results.dTel / 2)^2 * p.Results.acqTime * 1e-9 * p.Results.etaNR * p.Results.laserWL * 1e-9 / (3e8 * 6.626070040e-34);
 Nd_NR = p.Results.accShots * p.Results.darkCountNR * p.Results.acqTime * 1e-9;
 N_NR = Ns_NR + Nb_NR + Nd_NR;
 
