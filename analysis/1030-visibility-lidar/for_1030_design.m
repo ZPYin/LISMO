@@ -9,18 +9,18 @@ global LISMO_VARS;
 distArr = 7.5:15:20000;
 eleAngle = 0;
 laserWL = 1030;
-pulseEn = 0.15;
+pulseEn = 0.1;
 eta = 0.07;
 FWHMs = 3;
 FOV = 0.4;
 PB = [0, 0.05];
 darkCount = 300;
-accShots = 60 * 8000;
+accShots =5*8000;
 visArr = 10000;
 acqTime = 100;
 optEffiEmit = -log10(0.8);
-optEffiRecv = -log10(0.3);
-saveFile = fullfile('C:\Users\ZPYin\Documents\INAST-Lidar-Group\能见度激光雷达\image\sig_1030_nighttime.png');
+optEffiRecv = -log10(0.7);
+saveFile = fullfile('C:\Users\ZPYin\Documents\INAST-Lidar-Group\能见度激光雷达\image\sig_1030_single_profile.png');
 
 %% Load overlap
 load('overlap.mat');
@@ -50,7 +50,7 @@ for iPB = 1:length(PB)
                                 'NDRecv_FR', optEffiRecv, ...
                                 'FWHM', FWHMs, ...
                                 'darkCountFR', darkCount, ...
-                                'dTel', 0.175, ...
+                                'dTel', 0.075, ...
                                 'visible', 'off', ...
                                 'OzFR', OvInterp, ...
                                 'ylim', [0, 4]);
@@ -58,7 +58,7 @@ for iPB = 1:length(PB)
 end
 
 %% Display
-figure('Position', [0, 10, 400, 400], 'Units', 'Pixels', 'Color', 'w');
+figure('Position', [0, 10, 600, 400], 'Units', 'Pixels', 'Color', 'w');
 
 subfigs = subfigPos([0.15, 0.13, 0.82, 0.80], 2, 1, 0, 0.07);
 
@@ -72,12 +72,12 @@ plot([10, 10], [1e-10, 1e10], '-.r');
 hold off;
 
 xlim([0, 20]);
-ylim([1e-5, 1e7]);
+ylim([1e-4, 1e4]);
 
 xlabel('');
 ylabel('激光雷达信号 (MHz)');
 
-set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTick', 10.^(-5:3:7), 'YScale', 'log', 'Box', 'on', 'FontSize', 11);
+set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTick', 10.^(-4:2:4), 'YScale', 'log', 'Box', 'on', 'FontSize', 11);
 
 legend([p1, p2], 'Location', 'NorthEast');
 
@@ -92,11 +92,20 @@ plot([10, 10], [1e-10, 1e10], '-.r');
 hold off;
 
 xlim([0, 20]);
-ylim([1e-1, 1e5]);
+ylim([1e-1, 1e4]);
 
 xlabel('距离 (千米)');
 ylabel('信噪比');
 
-set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTick', 10.^(-1:2:5), 'YScale', 'log', 'Box', 'on', 'FontSize', 11);
+set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'YTick', 10.^(-1:1:5), 'YScale', 'log', 'Box', 'on', 'FontSize', 11);
 
 export_fig(gcf, saveFile, '-r300');
+
+
+% print detection range
+for iPB =1:length(PB)
+    snr = (dataSimAll{iPB}.N_FR - dataSimAll{iPB}.Nb_FR - dataSimAll{iPB}.Nd_FR) ./ sqrt(dataSimAll{iPB}.N_FR);
+    snr(dataSimAll{iPB}.distArr < 400) = NaN;
+    idx = find(snr < 3, 1, 'first');
+    fprintf('Detection range %f: %f m\n', laserWL, dataSimAll{iPB}.distArr(idx));
+end
