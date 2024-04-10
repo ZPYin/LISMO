@@ -5,13 +5,13 @@ clc;
 % r0 = 0.005;   % initial laser radius. (m)
 % theta1 = 0.05e-3;   % divergence of laser beam. (rad)
 % rOF = 75e-6;   % core width of optical fiber. (200 um for 3-stage; 150 um for 7-stage)
-d = 0.11;   % distance between laser beam and telescope. (m)
+d = 0.05;   % distance between laser beam and telescope. (m)
 r0 = 0.005;   % initial laser radius. (m)
 theta1 = 0.05e-3;   % divergence of laser beam. (rad)
-rOF = 75e-6;   % core width of optical fiber. (200 um for 3-stage; 150 um for 7-stage)
+rOF = 50e-6;   % core width of optical fiber. (200 um for 3-stage; 150 um for 7-stage)
 
 % 1-stage
-fImg = [0.190];   % distance between focal plane and the primary mirrow of the telescope. (m)
+fImg = [0.150];   % distance between focal plane and the primary mirrow of the telescope. (m)
 ox = [-0.00001];   % projection of each fiber bundle stage to the optical axis of the telescope on the x axis. (m)
 
 % 3-stage
@@ -35,7 +35,7 @@ ox = [-0.00001];   % projection of each fiber bundle stage to the optical axis o
 % ox = -((1:35) - 1) * 0.15e-3 - 0.00008;
 
 % Display
-xRange = [0, 3000];
+xRange = [0, 500];
 
 %% Overlap calculation
 h = logspace(0, log10(xRange(2)), 700);
