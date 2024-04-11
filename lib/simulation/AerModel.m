@@ -35,7 +35,6 @@ parse(p, height, varargin{:});
 
 %% Read meteorological data
 switch lower(p.Results.scene)
-    
 case 'marine-weak'
     layerBase = 0;   % distance of sea fog base. (m)
     layerTop = 1500;   % distance of sea fog top. (m)
