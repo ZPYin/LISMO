@@ -10,7 +10,7 @@
 %
 % KEYWORDS:
 %    method: char
-%        visibility calculation method. (default: 'wmo', 'mor')
+%        visibility calculation method. (default: 'wmo')
 %
 % OUTPUTS:
 %    tExt: array
@@ -31,9 +31,6 @@ parse(p, visibility, varargin{:});
 switch lower(p.Results.method)
 case 'wmo'
     tExt = -log(0.02) ./ visibility;
-
-case 'mor'
-    tExt = 3 ./ visibility;
 
 otherwise
     error('Unknown visibility calculation method.');

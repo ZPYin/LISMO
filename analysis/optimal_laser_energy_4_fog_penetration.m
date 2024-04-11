@@ -2,14 +2,15 @@
 % Simulate penetration depth for a given laser energy.
 %------------------------------------------------------------------------------%
 
+global LISMO_VARS;
+
 %% Parameter Definition
-distArr = 7.5:15:12000;
+distArr = 7.5:15:20000;
 eleAngle = 0;
-laserWL = 1030;
+laserWL = 1064;
 pulseEn = 0.15;
-FWHMs = 3;
 runSimulation = true;
-fogType = 'sea-fog-none';
+fogType = 'fog-lsw';
 
 %% Signal Simulation
 height = distArr * sin(eleAngle / 180 * pi);
@@ -23,6 +24,5 @@ dataSim = LISMO_Model(distArr, 'tBsc', mBsc + aBsc + fBsc, ...
                                'pulseEn', pulseEn, ...
                                'accShots', 25000, ...
                                'PB', 0, ...
-                               'FWHM', 3, ...
                                'visible', 'on', ...
                                'ylim', [0, 4]);

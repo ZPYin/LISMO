@@ -13,7 +13,7 @@ flagAve4Vis = false;
 iPrfInScan4Vis = 1;
 flagOverlapCor = true;
 olHeight = 1000;
-refDist = [4000, 5000];
+refDist = [3000, 4500];
 calDist = [2000, 3000];
 visRetMethod = 'xian';
 overlapFile = 'C:\Users\ZPYin\Documents\Coding\Matlab\LISMO\analysis\wxzk\near-sea-shore-measurement\2023-12-26\overlap_20231226.mat';
@@ -121,9 +121,7 @@ isInRefDist = (range >= refDist(1)) & (range <= refDist(2));
 ratioL2M = nanmean(mAttn(isInRefDist)) / nanmean(meanRCS(isInRefDist));
 
 % calculate reference value
-meanRCSTmp = meanRCS;
-meanRCSTmp(meanRCSTmp <= 0) = NaN;
-extSlopeMethod = movingslope(log(meanRCSTmp), 2) / (-2) / (range(2) - range(1)) - mExt;
+extSlopeMethod = movingslope(log(smooth(meanRCS, 8)), 8) / (-2) / (range(2) - range(1)) - transpose(mExt);
 extRef = nanmean(extSlopeMethod(isInRefDist));
 extRefStd = nanstd(extSlopeMethod(isInRefDist));
 aBsc = fernald(range, nanmean(scanData.signal, 1), nansum(scanData.bg), 50, refDist, extRef / 50, mBsc, 4);
