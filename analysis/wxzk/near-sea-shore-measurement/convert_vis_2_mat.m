@@ -7,7 +7,7 @@ clc;
 close all;
 
 %% 定义参数
-visFile = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\岸基前向散射能见度仪\Visibility-岸基.txt';
+visFile = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\青岛数据\Visibility.txt';
 saveFile = 'vis-fixed-platform.mat';
 
 %% 读取数据文件

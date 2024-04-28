@@ -67,11 +67,11 @@ attn(isInBlindZone) = NaN;
 [mBsc, mExt] = rayleigh_scattering(p.Results.emit_wavelength, pressure, temperature + 273.14, 380, 60);
 
 %% Extinction Profile Retrieval
-mol_att = exp(- nancumsum(mExt .* diffR, 1));
+mol_att = exp(- nancumsum(mExt .* diffR, 2));
 quasi_par_ext = zeros(size(mBsc));
 
 for iLoop = 1:5
-    quasi_par_att = exp(-nancumsum(quasi_par_ext .* diffR, 1));
+    quasi_par_att = exp(-nancumsum(quasi_par_ext .* diffR, 2));
     quasi_par_bsc = attn ./ (mol_att .* quasi_par_att).^2 - mBsc;
     quasi_par_bsc(quasi_par_bsc <= 0) = 0;
     quasi_par_ext = quasi_par_bsc .* LRaer;

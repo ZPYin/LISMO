@@ -21,7 +21,7 @@ savePath = 'C:\Users\ZPYin\Documents\Coding\Matlab\LISMO\analysis\wxzk\near-sea-
 visFile = 'C:\Users\ZPYin\Documents\Coding\Matlab\LISMO\analysis\wxzk\near-sea-shore-measurement\vis-fixed-platform.mat';
 
 %% Read Data
-dayPath = fullfile(dataFolder, datestr(scanTime2Plot(1), 'yyyy'), datestr(scanTime2Plot(1), 'mm'), datestr(scanTime2Plot(1), 'dd'));
+dayPath = fullfile(dataFolder, datestr(scanTime2Plot(1), 'yyyy'), sprintf('%d', str2double(datestr(scanTime2Plot(1), 'mm'))), sprintf('%d', str2double(datestr(scanTime2Plot(1), 'dd'))));
 scanPaths = listdir(dayPath, '.*', 1);
 
 % Read Scan Data

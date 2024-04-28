@@ -9,8 +9,8 @@
 dataPath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\RawData';
 savePath = 'C:\Users\ZPYin\Documents\Data\wxzk_fog_measurements\Quicklooks';
 location = 'QingDao1';
-tRange = [datenum(2023, 12, 25, 0, 0, 0), datenum(2023, 12, 31, 23, 59, 59)];
-visRetMethod = 'xian';   % xian: Xian's method; quasi: Quasi retrieval
+tRange = [datenum(2024, 2, 1, 0, 0, 0), datenum(2024, 2, 3, 23, 59, 59)];
+visRetMethod = 'quasi';   % xian: Xian's method; quasi: Quasi retrieval
 debug = false;
 olHeight = 1000;
 overlapCor = true;
@@ -84,7 +84,7 @@ for iDate = floor(tRange(1)):floor(tRange(2))
                 ext(iPrf, :) = extRet_Xian(range, signal(iPrf, :), bg(iPrf), 'minSNR', 0.5, 'rangeFullOverlap', 200);
             elseif strcmpi(visRetMethod, 'quasi')
                 [~, ext(iPrf, :)] = extRet_Holger(range, signal(iPrf, :), ...
-                    'calibration_constant', 1.9e15, ...
+                    'calibration_constant', 3e15, ...
                     'fullOverlapR', 280, ...
                     'elevation_angle', data.zenithAng(iPrf));
             else
@@ -128,8 +128,9 @@ for iDate = floor(tRange(1)):floor(tRange(2))
 
         %% visiblity
         ext(lowSNRMask & (snr < 3)) = NaN;
-        vis = ext2vis(ext);
-        vis(isnan(vis)) = 1e5;
+        ext550 = (1064 / 550).^1.4 * ext;
+        vis = ext2vis(ext550);
+        vis(isnan(vis)) = 5e4;
 
         figure('Position', [0, 0, 700, 400], 'color', 'w', 'visible', 'off');
         [~, p1] = polarPcolor(range / 1e3, data.azimuthAng, vis * 1e-3, 'Nspokes', 7, 'colormap', 'hot', 'GridLineStyle', '--', 'RLim', [0, 10], 'Ncircles', 5, 'labelR', '', 'tickSize', 12, 'tickColor', 'm', 'typeRose', 'default', 'cRange', [0, 30]);

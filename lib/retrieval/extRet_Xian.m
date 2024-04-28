@@ -54,7 +54,7 @@ else
     return;
 end
 
-avgLen = 8;
+avgLen = 20;
 if ((idxB - ceil(avgLen / 2)) > 1) && ((idxB + ceil(avgLen / 2)) < length(range))
     RCS_B = nanmean(RCS((idxB - ceil(avgLen / 2)):(idxB + ceil(avgLen / 2))));
 elseif ((idxB - ceil(avgLen / 2)) < 1)
