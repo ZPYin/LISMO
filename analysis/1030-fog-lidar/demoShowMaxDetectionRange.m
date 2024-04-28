@@ -36,7 +36,7 @@ title(sprintf('激光测雾雷达距离修正信号 %s', datestr(data.mTime(1), 'yyyy-mm-dd'
 caxis([0, 10]);
 colormap('jet');
 
-set(gca, 'TickDir', 'out', 'YMinorTick', 'on', 'Box', 'on');
+set(gca, 'TickDir', 'out', 'YMinorTick', 'on', 'Box', 'on', 'layer', 'top');
 xlim([min(data.mTime), max(data.mTime)]);
 ylim([0, 20]);
 datetick(gca, 'x', 'HH:MM', 'keeplimits', 'keepticks');
@@ -46,7 +46,7 @@ colorbar();
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', '连续观测信号时空高度图.png'), '-r300');
 
 % 最远探测距离展示图
-figure('Position', [0, 10, 500, 270], 'Units', 'Pixels', 'Color', 'w');
+figure('Position', [0, 10, 2000, 270], 'Units', 'Pixels', 'Color', 'w');
 
 % tForDetectionRange = [datenum(2023, 7, 18, 20, 10, 0), datenum(2023, 7, 18, 21, 10, 0)];
 tForDetectionRange = [datenum(2023, 11, 7, 10, 0, 0), datenum(2023, 11, 7, 13, 30, 0)];
@@ -58,20 +58,20 @@ idxSNRlt3 = find(snr(startSearchIdx:end) < 3, 1, 'first') + startSearchIdx;
 
 snr(snr <= 0) = NaN;
 p1 = semilogy(height / 1e3, snr, '-b', 'LineWidth', 2);  hold on;
-p4 = semilogy(height / 1e3, snr_nr, '-g', 'LineWidth', 2); hold on;
-p2 = semilogy([0, 100], [3, 3], '--r');
+%p4 = semilogy(height / 1e3, snr_nr, '-g', 'LineWidth', 2); hold on;
+%p2 = semilogy([0, 100], [3, 3], '--r');
 p3 = scatter(height(idxSNRlt3) / 1e3, snr(idxSNRlt3), 5, 'Marker', 'o', 'MarkerEdgeColor', 'r', 'MarkerFaceColor', 'r');
 
 
-text(height(idxSNRlt3) / 1e3 + 0.5, snr(idxSNRlt3) * 3, sprintf('距离: %5.2f千米', height(idxSNRlt3) / 1e3), 'Units', 'Data', 'color', 'r', 'fontsize', 15);
+%text(height(idxSNRlt3) / 1e3 + 0.5, snr(idxSNRlt3) * 3, sprintf('距离: %5.2f千米', height(idxSNRlt3) / 1e3), 'Units', 'Data', 'color', 'r', 'fontsize', 15);
 
 xlabel('距离 (千米)');
-ylabel('信噪比');
+ylabel('信号');
 title(sprintf('激光测雾雷达最远探测距离展示 (%s)', datestr(mean(data.mTime(isInAVGRange)), 'yyyy年mm月dd日 HH:MM')));
 
 xlim([0, 30]);
 ylim([1e-1, 1e4]);
 
-set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.03, 0.02]);
+set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.01, 0.01], 'fontsize', 14);
 
-export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', '最远探测距离.png'), '-r300');
+%export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', '最远探测距离.png'), '-r300');
