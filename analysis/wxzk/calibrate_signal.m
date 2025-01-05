@@ -52,9 +52,9 @@ p1.EdgeColor = 'none';
 caxis([0, 6e9]);
 colormap('jet');
 
-xlabel('x����� (ǧ��)');
-ylabel('y����� (ǧ��)');
-title(sprintf('��������״�ʱ���ź�ͼ (%s)', datestr(lData.startTime(1), 'yyyy-mm-dd HH:MM')));
+xlabel('x轴距离 (千米)');
+ylabel('y轴距离 (千米)');
+title(sprintf('激光测雾雷达时空信号图 (%s)', datestr(lData.startTime(1), 'yyyy-mm-dd HH:MM')));
 
 xlim([-maxRange, maxRange]);
 ylim([-maxRange, maxRange]);
@@ -71,9 +71,9 @@ p1.EdgeColor = 'none';
 caxis([0, 10]);
 colormap('jet');
 
-xlabel('x����� (ǧ��)');
-ylabel('y����� (ǧ��)');
-title('�����');
+xlabel('x轴距离 (千米)');
+ylabel('y轴距离 (千米)');
+title('信噪比');
 
 xlim([-maxRange, maxRange]);
 ylim([-maxRange, maxRange]);
@@ -96,8 +96,10 @@ ratioL2M = nansum(mAttn(isInRefDist)) / nansum(meanRCS(isInRefDist));
 
 % calculate reference value
 extSlopeMethod = movingslope(log(smooth(meanRCS, 8)), 8) / (-2) / (range(2) - range(1)) - transpose(mExt);
-extRef = nanmean(extSlopeMethod(isInRefDist));
-extRefStd = nanstd(extSlopeMethod(isInRefDist));
+%使用移动斜率方法来估计消光系数的变化。首先，对平均雷达截面（meanRCS）进行平滑处理（使用8点平滑），然后对其对数值取移动斜率（窗口也为8点）。
+%得到的斜率除以-2和两个测量点之间的距离（range(2) - range(1)），然后从中减去转置的消光系数矩阵（mExt）。这样可以估计出每个距离点的消光系数。
+extRef = nanmean(extSlopeMethod(isInRefDist)); %以均值作为参考消光系数
+extRefStd = nanstd(extSlopeMethod(isInRefDist)); %计算标准差作为变异程度
 
 aBsc = fernald(range, nanmean(signal, 1), nansum(bg), lr, refDist, extRef / lr, mBsc, 4);
 
@@ -110,14 +112,14 @@ subplot('Position', subfig(1, :), 'Units', 'normalized');
 
 hold on;
 
-p1 = plot(range * 1e-3, mAttn, 'Color', [242, 89, 75] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', '�����ź�');
-p2 = plot(range * 1e-3, meanRCS * ratioL2M, 'Color', [65, 54, 89] / 255, 'LineWidth', 2, 'DisplayName', '�״�');
+p1 = plot(range * 1e-3, mAttn, 'Color', [242, 89, 75] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', '分子信号');
+p2 = plot(range * 1e-3, meanRCS * ratioL2M, 'Color', [65, 54, 89] / 255, 'LineWidth', 2, 'DisplayName', '雷达');
 
 plot([refDist(1), refDist(1)] * 1e-3, [1e-20, 1e20], '--k');
 plot([refDist(2), refDist(2)] * 1e-3, [1e-20, 1e20], '--k');
 
-xlabel('ˮƽ���� (ǧ��)');
-ylabel('˥������ɢ��ϵ�� (m-1sr-1)');
+xlabel('水平距离 (千米)');
+ylabel('衰减后向散射系数 (m-1sr-1)');
 
 xlim([0, maxRange]);
 ylim([1e-9, max(meanRCS * ratioL2M) * 4]);
@@ -130,14 +132,14 @@ subplot('Position', subfig(2, :), 'Units', 'normalized');
 
 hold on;
 
-p1 = plot(range * 1e-3, mBsc * 1e6, 'Color', [242, 89, 75] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', '�����ź�');
-p2 = plot(range * 1e-3, aBsc * 1e6 * lr, 'Color', [65, 54, 89] / 255, 'LineWidth', 2, 'DisplayName', '�״�');
+p1 = plot(range * 1e-3, mBsc * 1e6, 'Color', [242, 89, 75] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', '分子信号');
+p2 = plot(range * 1e-3, aBsc * 1e6 * lr, 'Color', [65, 54, 89] / 255, 'LineWidth', 2, 'DisplayName', '雷达');
 
 plot([refDist(1), refDist(1)] * 1e-3, [1e-20, 1e20], '--k');
 plot([refDist(2), refDist(2)] * 1e-3, [1e-20, 1e20], '--k');
 
-xlabel('ˮƽ���� (ǧ��)');
-ylabel('����ϵ�� (m-1)');
+xlabel('水平距离 (千米)');
+ylabel('消光系数 (m-1)');
 
 xlim([0, maxRange]);
 ylim([-0.5, 500]);
@@ -160,10 +162,10 @@ plot(range * 1e-3, lc, '-k', 'LineWidth', 2);
 plot([calDist(1), calDist(1)] * 1e-3, [1e-20, 1e20], '--k');
 plot([calDist(2), calDist(2)] * 1e-3, [1e-20, 1e20], '--k');
 
-text(0.3, 0.8, sprintf('�״�궨����ƽ��: %5.3e\\pm%5.3e\n�ο����ӱ궨����:%5.3e\n', lcMean, lcStd, meanL2M), 'Units', 'normalized');
+text(0.3, 0.8, sprintf('雷达标定常数平均: %5.3e\\pm%5.3e\n参考分子标定常数:%5.3e\n', lcMean, lcStd, meanL2M), 'Units', 'normalized');
 
-xlabel('ˮƽ���� (ǧ��)');
-ylabel('�״�궨���� (ÿ������)');
+xlabel('水平距离 (千米)');
+ylabel('雷达标定常数 (每单廓线)');
 
 xlim([0, maxRange]);
 ylim([0., lcMean * 3]);
