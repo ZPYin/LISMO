@@ -35,7 +35,7 @@ parse(p, tExt, varargin{:});
 
 switch lower(p.Results.method)
 case 'wmo'
-    visibility = -log(0.02) ./ tExt;
+    visibility = -log(0.05) ./ tExt;
 
     if ~ isempty(p.Results.ExtinctionError)
         visibilityErr = sqrt(1 ./ tExt.^2 * p.Results.ExtinctionError);

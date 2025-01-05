@@ -6,13 +6,16 @@
 %------------------------------------------------------------------------------%
 
 global LISMO_VARS;
+close all;
+clc;
 
 %% Parameter Definition
 distArr = 7.5:15:20000;
 eleAngle = 3;
 laserWL = 1030;
+hRange = [0, 10];
 runSimulation = true;
-savePath = fullfile(savePath);
+savePath = fullfile(LISMO_VARS.projectDir, 'image');
 
 %% Signal Simulation
 if runSimulation
@@ -93,7 +96,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 xlim([1e9, 1e12]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -110,7 +113,7 @@ p3 = plot(aExt1 * 1e6, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth'
 p1 = plot((aExt + fExt) * 1e6, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 1, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([0, 200]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Extinction Coeff. (Mm^{-1})');
 ylabel('');
@@ -132,7 +135,7 @@ plot([-15, -15], [0, 100], '-.k');
 plot([0, 0], [0, 100], 'k--');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -152,7 +155,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -169,7 +172,7 @@ p3 = semilogx(visibility1, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWi
 p1 = semilogx(visibility, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 1, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([1, 1e7]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Visibility (m)');
 ylabel('');
@@ -191,7 +194,7 @@ plot([30, 30], [0, 100], '-.k');
 plot([-30, -30], [0, 100], '-.k');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -233,7 +236,7 @@ p1 = pcolor(1:nLoops, distArr / 1e3, (aExt4 - repmat(transpose(aExt + fExt), 1, 
 p1.EdgeColor = 'None';
 
 xlim([1, nLoops]);
-ylim([0, 15]);
+ylim(hRange);
 caxis([-20, 20]);
 
 xlabel('Iteration');
@@ -267,7 +270,7 @@ p1 = plot((aExt + fExt) * 1e6, distArr / 1e3, 'color', [53, 46, 51] / 255, 'Line
 lineInstances = cat(2, lineInstances, p1);
 
 xlim([0, 1.5e3]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Extinction Coeff. (m^{-1})');
 ylabel('Height (km)');
@@ -290,7 +293,7 @@ plot([-15, -15], [0, 100], '-.k');
 plot([0, 0], [0, 100], 'k--');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -341,7 +344,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim([1e9, 1e12]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -358,7 +361,7 @@ p2 = plot(aExt_Bsw2 * 1e6, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineW
 p1 = plot((aExt + fExt) * 1e6, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([0, 3000]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Extinction Coeff. (Mm^{-1})');
 ylabel('');
@@ -380,7 +383,7 @@ plot([-15, -15], [0, 100], '-.k');
 plot([0, 0], [0, 100], 'k--');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -400,7 +403,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -417,7 +420,7 @@ p2 = semilogx(visibility2, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineW
 p1 = semilogx(visibility, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([1, 1e7]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Visibility (m)');
 ylabel('');
@@ -439,7 +442,7 @@ plot([30, 30], [0, 100], '-.k');
 plot([-30, -30], [0, 100], '-.k');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -486,7 +489,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim([1e9, 1e12]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -503,7 +506,7 @@ p2 = plot(aExt_Bsw2 * 1e6, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineW
 p1 = plot((aExt + fExt) * 1e6, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([0, 1500]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Extinction Coeff. (Mm^{-1})');
 ylabel('');
@@ -525,7 +528,7 @@ plot([-15, -15], [0, 100], '-.k');
 plot([0, 0], [0, 100], 'k--');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -545,7 +548,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -562,7 +565,7 @@ p2 = semilogx(visibility2, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineW
 p1 = semilogx(visibility, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([1, 1e7]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Visibility (m)');
 ylabel('');
@@ -585,7 +588,7 @@ plot([-30, -30], [0, 100], '-.k');
 hold off;
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -632,7 +635,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim([]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -649,7 +652,7 @@ p2 = plot(aExt_Bsw2 * 1e6, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineW
 p1 = plot((aExt + fExt) * 1e6, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([0, 3000]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Extinction Coeff. (Mm^{-1})');
 ylabel('');
@@ -671,7 +674,7 @@ plot([-15, -15], [0, 100], '-.k');
 plot([0, 0], [0, 100], 'k--');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
@@ -691,7 +694,7 @@ rcsTmp(rcsTmp <= 0) = NaN;
 semilogx(rcsTmp, distArr / 1e3, '-r'); hold on;
 
 % xlim();
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Range corrected signal');
 ylabel('Distance (km)');
@@ -708,7 +711,7 @@ p2 = semilogx(visibility2, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineW
 p1 = semilogx(visibility, distArr / 1e3, 'color', [53, 46, 51] / 255, 'LineWidth', 2, 'LineStyle', '--', 'DisplayName', 'True Val.');
 
 xlim([1, 1e7]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Visibility (m)');
 ylabel('');
@@ -719,7 +722,7 @@ legend([p1, p2, p4], 'Location', 'NorthEast');
 
 subplot('Position', figPos(3, :), 'Units', 'normalized');
 
-p3 = plot((visibility3 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
+p3 = plot(smooth((visibility3 - visibility) ./ visibility * 100, 8), distArr / 1e3, 'color', [238, 107, 171] / 255, 'LineWidth', 2);
 hold on;
 % p2 = plot((visibility1 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [20, 110, 178] / 255, 'LineWidth', 2);
 p1 = plot((visibility2 - visibility) ./ visibility * 100, distArr / 1e3, 'color', [201, 229, 240] / 255, 'LineWidth', 2);
@@ -730,7 +733,7 @@ plot([30, 30], [0, 100], '-.k');
 plot([-30, -30], [0, 100], '-.k');
 
 xlim([-50, 50]);
-ylim([0, 15]);
+ylim(hRange);
 
 xlabel('Rel. Err. (%)');
 ylabel('');
