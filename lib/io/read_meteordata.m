@@ -1,6 +1,7 @@
 function [temp, pres, relh, meteor_time] = read_meteordata(measTime, altitude, varargin)
 % READ_METEORDATA Read the meteorological data according to the input 
 % meteorological data type.
+%
 % USAGE:
 %    %  Usecase 1: read GDAS1 data
 %    [temp, pres, relh] = read_meteordata(measTime, altitude, 'meteor_data', 'GDAS1', 'station', 'wuhan', 'GDAS1Folder', '/GDAS1');
@@ -8,11 +9,13 @@ function [temp, pres, relh, meteor_time] = read_meteordata(measTime, altitude, v
 %    [temp, pres, relh] = read_meteordata(measTime, altitude, 'meteor_data', 'Radiosonde', 'RadiosondeFolder', '/Radiosonde', 'station', 'wuhan');
 %    %  Usecase 3: read ERA-5 data.
 %    [temp, pres, relh] = read_meteordata(measTime, altitude, 'meteor_data', 'ERA-5', 'ERA5Folder', '/ERA-5', 'station', 'wuhan');
+%
 % INPUTS:
 %    measTime: datenum
 %        the measurement time. (UTC)
 %    altitude: array
 %        height above the mean sea level. [m]
+%
 % KEYWORDS:
 %    meteor_data: char
 %        meteorological data source. 
@@ -29,6 +32,7 @@ function [temp, pres, relh, meteor_time] = read_meteordata(measTime, altitude, v
 %        - 2: radiosonde file for MUA (default)
 %    ERA5Folder: char
 %        ERA-5 data folder.
+%
 % OUTPUTS:
 %    temp: array
 %        temperature for each range bin. [Celsius degree]
@@ -38,6 +42,7 @@ function [temp, pres, relh, meteor_time] = read_meteordata(measTime, altitude, v
 %        relative humidity for each range bin. [%]
 %    meteor_time: numeric
 %        timestamp for meteorological data. (datenum)
+%
 % HISTORY:
 %    2021-09-24: first edition by Zhenping
 % .. Authors: - zhenping@tropos.de

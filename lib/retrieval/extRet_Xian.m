@@ -1,8 +1,8 @@
-function [aExt] = extRet_Xian(range, signal, bg, varargin)
+function [tExt] = extRet_Xian(range, signal, bg, varargin)
 % EXTRET_XIAN calculate extinction coefficient based on Xian's method.
 %
 % USAGE:
-%    [aExt] = extRet_Xian(range, rcs, varargin)
+%    [tExt] = extRet_Xian(range, rcs, varargin)
 %
 % INPUTS:
 %    range: numeric
@@ -19,8 +19,8 @@ function [aExt] = extRet_Xian(range, signal, bg, varargin)
 %        minimum SNR for signal retrieval.
 %
 % OUTPUTS:
-%    aExt: numeric
-%        extinction coefficient. (m^-1)
+%    tExt: numeric
+%        total extinction coefficient. (m^-1)
 %
 % HISTORY:
 %    2023-03-07: first edition by Zhenping
@@ -45,7 +45,7 @@ ratioAB = RCS / RCS_A;
 detectLimitIdx = find((range >= p.Results.rangeFullOverlap) & (SNR <= p.Results.minSNR), 1);
 isInvalid = (range < p.Results.rangeFullOverlap) | (SNR <= p.Results.minSNR);
 
-aExt = NaN(size(signal));
+tExt = NaN(size(signal));
 if (~ isempty(detectLimitIdx))
     ratioAB(isInvalid | (ratioAB <= 0)) = NaN;
     [~, idxB] = min(ratioAB(1:detectLimitIdx));
@@ -71,7 +71,7 @@ else
 end
 
 for iBin = (idxMinOL + 1):idxB
-    aExt(iBin) = RCS(iBin) / (I_A_B / (1 - RCS_B / RCS_A) - trapz(range(idxMinOL:iBin), RCS(idxMinOL:iBin)));
+    tExt(iBin) = RCS(iBin) / (I_A_B / (1 - RCS_B / RCS_A) - trapz(range(idxMinOL:iBin), RCS(idxMinOL:iBin)));
 end
 
 end

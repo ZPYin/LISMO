@@ -58,10 +58,10 @@ diffR = [r(1), diff(r)];
 
 %% Remove Blind Zone
 isInBlindZone = (r <= p.Results.fullOverlapR);
-attn(isInBlindZone) = NaN;
+attn(isInBlindZone) = attn(find(~ isInBlindZone, 1));
 
 %% Obtain Rayleigh Scattering Properties
-[temperature, pressure, ~, ~] = read_meteordata(0, zeros(size(r)), ...
+[temperature, pressure, ~, ~] = read_meteordata(0, alt, ...
     'meteor_data', 'standard_atmosphere', ...
     'station', 'xxx');
 [mBsc, mExt] = rayleigh_scattering(p.Results.emit_wavelength, pressure, temperature + 273.14, 380, 60);
@@ -70,11 +70,16 @@ attn(isInBlindZone) = NaN;
 mol_att = exp(- nancumsum(mExt .* diffR, 2));
 quasi_par_ext = zeros(size(mBsc));
 
-for iLoop = 1:5
+for iLoop = 1:10
+    if any(abs(quasi_par_ext) > 3e-3)
+        break;
+    end
+
     quasi_par_att = exp(-nancumsum(quasi_par_ext .* diffR, 2));
     quasi_par_bsc = attn ./ (mol_att .* quasi_par_att).^2 - mBsc;
     quasi_par_bsc(quasi_par_bsc <= 0) = 0;
     quasi_par_ext = quasi_par_bsc .* LRaer;
+    quasi_par_ext(isInBlindZone) = quasi_par_ext(find(~isInBlindZone, 1));
 end
 
 aBsc = quasi_par_att;
