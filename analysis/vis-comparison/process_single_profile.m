@@ -2,7 +2,7 @@ clc;
 % close all;
 
 %% Parameter Definition
-tRange = datenum(2024, 11, 1, 0, 20, 0);   % 选择的廓线时间
+tRange = datenum(2024, 11, 17, 16, 53, 0);   % 选择的廓线时间
 visSensorFile = 'vis-sensor-data.mat';   % 前向散射能见度仪数据文件
 l0Folder = 'C:\Users\ZPYin\Documents\Data\CMA-vis-lidar-assessment\highway-obs\lidar';   % 雷达原始数据文件目录
 l1Folder = 'C:\Users\ZPYin\Documents\Data\CMA-vis-lidar-assessment\highway-obs\results';   % 雷达产品文件目录
@@ -112,7 +112,7 @@ ext_Fernald = extRet_Fernald(height * 1e3, thisSigCor * 3000 * 50 * 1e-3, thisBG
 ext_LK_1 = interp1(thisL1.height, thisL1.extinction, height * 1e3);
 
 % visiblity
-AEConvFactor = 2.52;   % 波长指数为1.4
+AEConvFactor = (1064/550) ^1;   % 波长指数（转换因子）
 vis_Holger = ext2vis(ext_Holger * AEConvFactor + mExt550);
 vis_Xian = ext2vis(ext_Xian);
 vis_Fernald = ext2vis(ext_Fernald * AEConvFactor + mExt550);
