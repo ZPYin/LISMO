@@ -26,6 +26,7 @@ function [extOut] = extRet_Fernald(range, sig, bg, mBsc, mExt, varargin)
 %    maxDecomHeight: numeric
 %    maxDecomThickness: numeric
 %    minRefThickness: numeric
+%    snr: numeric
 %
 % OUTPUTS:
 %    extOut: numeric
@@ -51,13 +52,18 @@ addParameter(p, 'maxDecomRange', 20000, @isnumeric);
 addParameter(p, 'maxDecomThickness', 1000, @isnumeric);
 addParameter(p, 'decomSmWin', 10, @isnumeric);
 addParameter(p, 'minRefThickness', 300, @isnumeric);
+addParameter(p, 'snr', [], @isnumeric);
 
 parse(p, range, sig, bg, mBsc, mExt, varargin{:});
 
 isInOL = (range < p.Results.hFullOL);
 nBinsInRef = 50;
 
-snr = lidarSNR(sig, bg);
+if isempty(p.Results.snr)
+    snr = lidarSNR(sig, bg);
+else
+    snr = p.Results.snr;
+end
 isLowSNR = (snr <= p.Results.minSNR) & (~ isInOL);
 idxLowSNR = find(isLowSNR, 1);
 
