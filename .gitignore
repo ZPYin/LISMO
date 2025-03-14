@@ -1,5 +1,6 @@
 # exclude temporary files
 *.asv
+*.vscode
 
 # exclude folders
 results
