@@ -9,16 +9,19 @@ function [oData] = readALADat(file, varargin)
 %        absolute paht of data file.
 %
 % KEYWORDS:
-%    debug: logical
+%    flagDebug: logical
 %    nMaxBin: numeric
+%    autoParse: logical
+%        whether to parse the dat file in an automatic way. (default: false)
 %
 % OUTPUTS:
 %    oData: struct
-%        rawSignal: matrix
+%        rawSignal: matrix (height x channel)
 %        mTime: numeric
-%        nPretrigger: numeric
 %        nShots: numeric
 %        channelLabel: cell
+%        ele: numeric
+%        azm: numeric
 %
 % HISTORY:
 %    2023-06-10: first edition by Zhenping
@@ -28,8 +31,9 @@ p = inputParser;
 p.KeepUnmatched = true;
 
 addRequired(p, 'file', @ischar);
-addParameter(p, 'debug', false, @islogical);
+addParameter(p, 'flagDebug', false, @islogical);
 addParameter(p, 'nMaxBin', [], @isnumeric);
+addParameter(p, 'autoParse', true, @islogical);
 
 parse(p, file, varargin{:});
 
@@ -39,9 +43,9 @@ if exist(file, 'file') ~= 2
     error(errStruct);
 end
 
-mTime = datenum(file((end-16):(end-4)), 'yymmdd-HHMMSS');
+mTime = datenum(['20', file((end-16):(end-4))], 'yyyymmdd-HHMMSS');
 
-if p.Results.debug
+if p.Results.flagDebug
     fprintf('Reading %s\n', file);
 end
 
@@ -64,8 +68,6 @@ nPulseCell = strsplit(thisLine, '	');
 nPulse = str2double(nPulseCell);
 fgetl(fid);
 thisLine = fgetl(fid);
-nPretriggerCell = strsplit(thisLine, '	');
-nPretrigger = str2double(nPretriggerCell);
 
 lidarData = textscan(fid, repmat('%f', 1, length(channelLabel)), 'HeaderLines', 1, 'Delimiter', '\t');
 
@@ -102,7 +104,9 @@ oData.mTime = mTime;
 oData.rawSignal = rawSignal(:, isValidChannel);
 oData.channelLabel = channelLabel(isValidChannel);
 oData.hRes = binWidth * 0.15;
-oData.nPretrigger = nPretrigger(isValidChannel);
 oData.nShots = nPulse(isValidChannel);
+oData.azm = 0;
+oData.ele = 90;
+oData.nBins = nMaxBin;
 
 end
