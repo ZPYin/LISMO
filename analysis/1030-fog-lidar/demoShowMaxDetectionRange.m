@@ -3,7 +3,7 @@ global LISMO_VARS;
 
 %% ²ÎÊıÉèÖÃ
 % dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030\2023-08-02';
-dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030\2023-11-07';
+dataFolder = 'D:\backup\Data\1030-fog-lidar\data\1030\2023-11-07';
 deadtime = 22;
 firstRangeBin = 16;
 % tRange = [datenum(2023, 2, 2, 20, 0, 0), datenum(2023, 8, 3, 5, 0, 0)];

@@ -1,11 +1,13 @@
 clc;
+close all;
 global LISMO_VARS;
 
 %% 参数设置
-dataFolder = 'C:\Users\ZPYin\Documents\Data\1030-fog-lidar\data\1030\2023-08-02';
+dataFolder = 'D:\backup\Data\1030-fog-lidar\data\1030\2023-11-07';
 deadtime = 0;
 firstRangeBin = 15;
-tRange = [datenum(2023, 8, 2, 20, 0, 0), datenum(2023, 8, 3, 5, 0, 0)];
+%tRange = [datenum(2023, 8, 2, 20, 0, 0), datenum(2023, 8, 3, 5, 0, 0)];
+ tRange = [datenum(2023, 11, 7, 0, 0, 0), datenum(2023, 11, 7, 11, 20, 0)];
 
 %% 读取数据
 data = readALADats(dataFolder, 'tRange', tRange);
@@ -70,7 +72,8 @@ export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'figxx-continuous-measu
 %% 最远探测距离展示图
 figure('Position', [0, 10, 500, 270], 'Units', 'Pixels', 'Color', 'w');
 
-tForDetectionRange = [datenum(2023, 8, 3, 0, 0, 0), datenum(2023, 8, 3, 0, 30, 0)];
+% tForDetectionRange = [datenum(2023, 8, 3, 0, 0, 0), datenum(2023, 8, 3, 0, 30, 0)];
+tForDetectionRange = [datenum(2023, 11, 7, 11, 10, 0), datenum(2023, 11, 7, 11, 30, 0)];
 isInAVGRange = (data.mTime >= tForDetectionRange(1)) & (data.mTime <= tForDetectionRange(2));
 snr = smooth(nansum(sigPC(2, :, isInAVGRange), 3), 4) ./ sqrt(smooth(nansum(corSigPC(2, :, isInAVGRange), 3), 4)) * 2;
 startSearchIdx = 200;
@@ -95,8 +98,6 @@ set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.03, 
 export_fig(gcf, fullfile(LISMO_VARS.projectDir, 'image', 'figxxMaximumdetectionrange-fr.png'), '-r300');
 
 figure('Position', [0, 10, 500, 270], 'Units', 'Pixels', 'Color', 'w');
-
-tForDetectionRange = [datenum(2023, 8, 3, 0, 0, 0), datenum(2023, 8, 3, 0, 30, 0)];
 isInAVGRange = (data.mTime >= tForDetectionRange(1)) & (data.mTime <= tForDetectionRange(2));
 snr = nansum(sigPC(1, :, isInAVGRange), 3) ./ sqrt(nansum(corSigPC(1, :, isInAVGRange), 3));
 % startSearchIdx = 200;
