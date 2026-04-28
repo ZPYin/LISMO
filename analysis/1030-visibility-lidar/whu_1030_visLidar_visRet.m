@@ -10,7 +10,8 @@ clc;
 close all;
 
 %% Parameter Definition
-dataFile = 'C:\Users\zhenp\OneDrive\Desktop\VisibilityInversion (3)\VisibilityInversion (3)\VisibilityInversion\S001-NAP001-Test CMA-017-210927-110120.dat';   % 信号廓线
+% dataFile = 'C:\Users\zhenp\OneDrive\Desktop\VisibilityInversion (3)\VisibilityInversion (3)\VisibilityInversion\S001-NAP001-Test CMA-017-210927-110120.dat';   % 信号廓线
+dataFile = 'G:\lidar\test\visibility-lidar\20260106\Z_RADA_I_51544_20260106000031_O_VISLIDAR_EP-VL10_L0.dat';   % 信号廓线
 resPath = 'C:\Users\zhenp\OneDrive\Desktop';   % 产品输出目录
 figPath = 'C:\Users\zhenp\OneDrive\Desktop';   % 图片结果输出目录
 flagOLCor = false;   % 是否进行重叠因子修正
@@ -18,12 +19,13 @@ olFile = 'overlap_20250101.mat';   % 重叠因子文件
 AEConvFactor = (1030/550) ^ 1;   % 气溶胶消光系数波长转换因子
 hFullOL = 500;   % 完全进入视场高度（m）
 lidarRatio = 50;   % 激光雷达比 (sr)
+fixed_ref_height = [10000, 10500];   % 固定参考高度（m），若为空则自动选择
 distOffset = -55;   % 预触发点个数（可通过信号第一个峰值进行判断）
 visible = 'on';   % 是否进行结果可视化
 
 %% Read Data
 if exist(dataFile, 'file')
-    thisData = readALADat(dataFile);
+    thisData = readALADat(dataFile, 'datatype', 2);
 else
     warning('Data file does not exist: %s', dataFile);
     return;
@@ -53,7 +55,8 @@ extMat_Fernald = extRet_Fernald(range, signal, bg, mBsc, mExt, ...
     'snr', snr, ...
     'minSNR', 3, ...
     'hFullOL', 500, ...
-    'lr', lidarRatio);
+    'lr', lidarRatio, ...
+    'fixed_ref_height', fixed_ref_height);
 bscMat_Fernald = extMat_Fernald ./ lidarRatio;
 
 %% Extinction to Visibility

@@ -11,6 +11,10 @@ function [oData] = readALADat(file, varargin)
 % KEYWORDS:
 %    flagDebug: logical
 %    nMaxBin: numeric
+%    datatype: numeric
+%        1: origianl output from ALA data recorder
+%        2: renaming to fulfill CMA standard
+%        (default: 1)
 %    autoParse: logical
 %        whether to parse the dat file in an automatic way. (default: false)
 %
@@ -34,6 +38,7 @@ addRequired(p, 'file', @ischar);
 addParameter(p, 'flagDebug', false, @islogical);
 addParameter(p, 'nMaxBin', [], @isnumeric);
 addParameter(p, 'autoParse', true, @islogical);
+addParameter(p, 'datatype', 1, @(x) isnumeric(x) && ismember(x, [1, 2]));
 
 parse(p, file, varargin{:});
 
@@ -43,7 +48,17 @@ if exist(file, 'file') ~= 2
     error(errStruct);
 end
 
-mTime = datenum(['20', file((end-16):(end-4))], 'yyyymmdd-HHMMSS');
+switch p.Results.datatype
+    case 1
+        mTime = datenum(['20', file((end-16):(end-4))], 'yyyymmdd-HHMMSS');
+    case 2
+        thisBasename = basename(file);
+        mTime = datenum(thisBasename(16:29), 'yyyymmddHHMMSS');
+    otherwise
+        errStruct.message = sprintf('Unsupported datatype: %d', p.Results.datatype);
+        errStruct.identifier = 'Err002';
+        error(errStruct);
+end
 
 if p.Results.flagDebug
     fprintf('Reading %s\n', file);

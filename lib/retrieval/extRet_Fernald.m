@@ -53,6 +53,7 @@ addParameter(p, 'maxDecomThickness', 1000, @isnumeric);
 addParameter(p, 'decomSmWin', 10, @isnumeric);
 addParameter(p, 'minRefThickness', 300, @isnumeric);
 addParameter(p, 'snr', [], @isnumeric);
+addParameter(p, 'fixed_ref_height', [], @isnumeric);
 
 parse(p, range, sig, bg, mBsc, mExt, varargin{:});
 
@@ -67,11 +68,18 @@ end
 isLowSNR = (snr <= p.Results.minSNR) & (~ isInOL);
 idxLowSNR = find(isLowSNR, 1);
 
-if (idxLowSNR > nBinsInRef)
-    aBsc = transpose(fernald(range, sig, bg, p.Results.lr, [range(idxLowSNR - 50), range(idxLowSNR)], 1e-6, mBsc, 16));
+% reference height
+if ~ isempty(p.Results.fixed_ref_height)
+    refHeight = p.Results.fixed_ref_height;
 else
-    aBsc = transpose(fernald(range, sig, bg, p.Results.lr, range(idxLowSNR), 1e-6, mBsc, 16));
+    if idxLowSNR > nBinsInRef
+        refHeight = [range(idxLowSNR - 50), range(idxLowSNR)];
+    else
+        refHeight = range(idxLowSNR);
+    end
 end
+
+aBsc = transpose(fernald(range, sig, bg, p.Results.lr, refHeight, 1e-6, mBsc, 16));
 aBsc(isLowSNR) = NaN;
 extOut = aBsc * p.Results.lr;
 

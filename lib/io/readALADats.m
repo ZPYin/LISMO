@@ -13,6 +13,12 @@ function [data] = readALADats(folder, varargin)
 %        temporal range for data files.
 %    nMaxBin: numeric
 %        maximum data bins to load in.
+%    datatype: numeric
+%        1: origianl output from ALA data recorder
+%        2: renaming to fulfill CMA standard
+%        (default: 1)
+%    flagSort: logical
+%        whether to sort data in time.
 %
 % OUTPUTS:
 %    data: struct
@@ -32,8 +38,10 @@ p.KeepUnmatched = true;
 
 addRequired(p, 'folder', @ischar);
 addParameter(p, 'tRange', [], @isnumeric);
+addParameter(p, 'flagSort', false, @islogical);
 addParameter(p, 'nMaxBin', [], @isnumeric);
 addParameter(p, 'debug', false, @islogical);
+addParameter(p, 'datatype', 1, @isnumeric);
 
 parse(p, folder, varargin{:});
 
@@ -51,10 +59,18 @@ data.nShots = [];
 
 for iFile = 1:length(dataFiles)
     if p.Results.debug
-        fprintf('Finish %6.2f%% ', (iFile - 1) / length(dataFiles) * 100);
+        fprintf('Finish %6.2f%%\n', (iFile - 1) / length(dataFiles) * 100);
     end
 
-    mTime = datenum(dataFiles{iFile}((end-16):(end-4)), 'yymmdd-HHMMSS');
+    thisFilename = basename(dataFiles{iFile});
+    switch p.Results.datatype
+        case 1
+            mTime = datenum(thisFilename((end-16):(end-4)), 'yymmdd-HHMMSS');
+        case 2
+            mTime = datenum(thisFilename(16:29), 'yyyymmddHHMMSS');
+        otherwise
+            error('Unsupported timestamp type: %d', p.Results.timestamp_type);
+    end
     if ~ isempty(p.Results.tRange)
         isNotInSearchTRange = (mTime < p.Results.tRange(1)) || (mTime > p.Results.tRange(2));
 
@@ -70,6 +86,16 @@ for iFile = 1:length(dataFiles)
     data.channelLabel = thisData.channelLabel;
     data.hRes = thisData.hRes;
     data.nShots = cat(2, data.nShots, thisData.nShots);
+end
+
+if p.Results.flagSort
+    [~, idxS] = sort(data.mTime);
+
+    data.mTime = data.mTime(idxS);
+    data.rawSignal = data.rawSignal(:, :, idxS);
+    data.channelLabel = data.channelLabel;
+    data.hRes = thisData.hRes;
+    data.nShots = data.nShots(:, idxS);
 end
 
 end

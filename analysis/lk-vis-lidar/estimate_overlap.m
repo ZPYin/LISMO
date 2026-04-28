@@ -2,13 +2,13 @@ clc;
 close all;
 
 %% Parameter Definition
-lidarFolder = 'C:\Users\ZPYin\Documents\Data\CMA-vis-lidar-assessment\highway-obs\lidar';
+lidarFolder = 'E:\CMA-vis-lidar-assessment\highway-obs\L0';
 distOffset = 12 * 7.5;
 filename = '20241101001000.pb';
 olFile = 'overlap_20241101.mat';
 linFitRange = [2000, 2500];
 hRangeDisplay = [0, 3000];
-savePath = 'C:\Users\ZPYin\Documents\Coding\Matlab\LISMO\analysis\vis-comparison';
+savePath = 'C:\Users\zhenp\Documents\Coding\Matlab\LISMO\analysis\lk-vis-lidar';
 
 % read lidar data
 thisDate = datenum(filename(1:(end - 3)), 'yyyymmddHHMMSS');
@@ -66,7 +66,7 @@ ov(range >= 1200) = 1;
 save(olFile, 'ov', 'range');
 
 if exist(savePath, 'dir')
-    saveFile = fullfile(savePath, sprintf('lk_%s_overlap_factor.txt', datestr(data.startTime, 'yyyymmdd')));
+    saveFile = fullfile(savePath, sprintf('lk_overlap_factor_%s.txt', datestr(data.startTime, 'yyyymmdd-HHMMSS')));
     fid = fopen(saveFile, 'w');
 
     fprintf(fid, 'range (m) overlap_factor (smoothed by 4 range bins)\n');

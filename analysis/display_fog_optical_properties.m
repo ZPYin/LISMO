@@ -3,31 +3,16 @@ close all;
 projectDir = fileparts(fileparts(mfilename('fullpath')));
 
 %% Parameter definition
-wavelength = 0.3:0.02:4;
-r = 0.01:0.1:60;
+kernelFile = fullfile(projectDir, 'data', 'mie_kernel_water_droplets.mat');
 
 %% Mie scattering
-qe = zeros(length(wavelength), length(r));
-qs = zeros(length(wavelength), length(r));
-qb = zeros(length(wavelength), length(r));
-g = zeros(length(wavelength), length(r));
-for iWL = 1:length(wavelength)
-    fprintf('Finished %6.2f%%\n', (iWL - 1) / length(wavelength) * 100);
-    [refIdxReal, refIdxImg] = refIdxWater(wavelength(iWL) * 1e3);
-
-    for iR = 1:length(r)
-        m = refIdxReal + 1i * refIdxImg;
-        k0 = 2 * pi / (wavelength(iWL) * 1e3);
-        a = r(iR) * 1000;
-
-        res = Mie(m, k0 * a);
-
-        qe(iWL, iR) = res(1);
-        qs(iWL, iR) = res(2);
-        qb(iWL, iR) = res(4);
-        g(iWL, iR) = res(5);
-    end
-end
+data = load(kernelFile, 'wavelength', 'r', 'qe', 'qs', 'qb', 'g');
+qe = data.qe;
+qs = data.qs;
+qb = data.qb;
+g = data.g;
+r = data.r;
+wavelength = data.wavelength;
 
 %% Fog size dist.
 fogSDAdvMod = fogSD_SS('type', 'advection', 'intensity', 'moderate');
@@ -55,6 +40,15 @@ for iWL = 1:length(wavelength)
     extinction(4, iWL) = sum(fogSDRadHvy(r) .* qe(iWL, :) .* pi .* r.^2 * 1e-9 * (r(2) - r(1)));
     asymFactor(4, iWL) = sum(fogSDRadHvy(r) .* qs(iWL, :) .* g(iWL, :) .* r.^2 * (r(2) - r(1))) ./ sum(fogSDRadHvy(r) .* qs(iWL, :) .* r.^2 * (r(2) - r(1)));
 end
+
+%% Output results
+fprintf('Extinction coefficient of clouds at different wavelength (km-1)...\n');
+factor = 6.5 / interp1(wavelength, extinction(2, :), 0.355);
+fprintf('@355nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, extinction(2, :) * factor, 0.355), 4 / (interp1(wavelength, extinction(2, :) * factor, 0.355) + 0.0124));
+fprintf('@532nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, extinction(2, :) * factor, 0.532), 4 / (interp1(wavelength, extinction(2, :) * factor, 0.532) + 0.0024));
+fprintf('@1064nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, extinction(2, :) * factor, 1.064), 4 / interp1(wavelength, extinction(2, :) * factor, 1.064));
+fprintf('@1600nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, extinction(2, :) * factor, 1.6), 4 / interp1(wavelength, extinction(2, :) * factor, 1.6));
+fprintf('@2000nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, extinction(2, :) * factor, 2.0), 4 / interp1(wavelength, extinction(2, :) * factor, 2.0));
 
 %% Data visualization
 subPos = subfigPos([0.12, 0.10, 0.85, 0.84], 3, 1, 0, 0.04);
@@ -86,22 +80,22 @@ p1 = plot(wavelength, backscatter(1, :), 'LineStyle', '-', 'Color', [0, 0, 0]/25
 xlabel('');
 ylabel('Backscatter (km^{-1}sr^{-1})');
 
-xlim([wavelength(1), wavelength(end)]);
+xlim([wavelength(1), 3]);
 ylim([0, 3]);
 
 legend([p1, p2, p3, p4], 'Location', 'NorthEast');
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'XTickLabel', '', 'Box', 'on', 'TickLen', [0.02, 0.01]);
 
 subplot('Position', subPos(3, :), 'Units', 'normalized');
-p2 = plot(wavelength, extinction(2, :) ./ backscatter(2, :), 'LineStyle', '-', 'Color', [211, 211, 211]/255, 'LineWidth', 2, 'DisplayName', 'Severe Advection fog'); hold on;
-p3 = plot(wavelength, extinction(3, :) ./ backscatter(3, :), 'LineStyle', '--', 'Color', [65, 105, 226]/255, 'LineWidth', 2, 'DisplayName', 'Moderate Radiation fog'); hold on;
-p4 = plot(wavelength, extinction(4, :) ./ backscatter(4, :), 'LineStyle', '--', 'Color', [135, 206, 250]/255, 'LineWidth', 2, 'DisplayName', 'Severe Radiation fog'); hold on;
+% p2 = plot(wavelength, extinction(2, :) ./ backscatter(2, :), 'LineStyle', '-', 'Color', [211, 211, 211]/255, 'LineWidth', 2, 'DisplayName', 'Severe Advection fog'); hold on;
+% p3 = plot(wavelength, extinction(3, :) ./ backscatter(3, :), 'LineStyle', '--', 'Color', [65, 105, 226]/255, 'LineWidth', 2, 'DisplayName', 'Moderate Radiation fog'); hold on;
+% p4 = plot(wavelength, extinction(4, :) ./ backscatter(4, :), 'LineStyle', '--', 'Color', [135, 206, 250]/255, 'LineWidth', 2, 'DisplayName', 'Severe Radiation fog'); hold on;
 p1 = plot(wavelength, extinction(1, :) ./ backscatter(1, :), 'LineStyle', '-', 'Color', [0, 0, 0]/255, 'LineWidth', 2, 'DisplayName', 'Moderate Advection fog'); hold on;
 
 xlabel('\lambda (\mum)');
 ylabel('Lidar Ratio (sr)');
 
-xlim([wavelength(1), wavelength(end)]);
+xlim([wavelength(1), 3]);
 ylim([0, 50]);
 
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'TickLen', [0.02, 0.01]);
