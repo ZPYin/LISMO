@@ -1,6 +1,7 @@
 # exclude temporary files
 *.asv
 *.vscode
+mie_kernel_water_droplets.mat
 
 # exclude folders
 results
