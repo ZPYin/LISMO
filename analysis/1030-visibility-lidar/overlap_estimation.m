@@ -2,20 +2,20 @@ clc;
 close all;
 
 %% Parameter Definition
-dataFile = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VIS2\L0\2026-05-02_vis_lidar_l0.mat';
-olFile = 'overlap_20260425.mat';
-linFitRange = [800, 1000];
+dataFile = 'G:\backup\vis-lidar\20251221-wuhan\L0\2025-12-24_vis_lidar_l0.mat';
+olFile = 'overlap_20251224.mat';
+linFitRange = [1600, 2000];
 prfIdx = 720:730;
 hRangeDisplay = [0, 2000];
 savePath = 'C:\Users\zhenp\Documents\Coding\Matlab\LISMO\analysis\1030-visibility-lidar';
-olFile = 'VIS2_overlap_factor.txt';
+olFile = 'VIS_overlap_factor.txt';
 
 %% List Data Files
 data = load(dataFile);
 
 %% Preprocessing
 range = data.range;
-bg = nanmean(data.lidarSig(1500:1550, :), 1);
+bg = nanmean(data.lidarSig(1400:1450, :), 1);
 signal = data.lidarSig - repmat(bg, length(data.range), 1);
 rcsAll = signal .* repmat(range, 1, length(data.mTime)).^2;
 rcs = sum(rcsAll(:, prfIdx), 2);

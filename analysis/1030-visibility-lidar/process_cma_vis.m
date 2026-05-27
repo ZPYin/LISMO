@@ -1,9 +1,9 @@
 %% Parameter Definition
 visSensorFile = 'vis-sensor-data.mat';   % 前向散射能见度仪数据文件
-l0Folder = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VIS1\L0';   % 雷达原始数据文件目录
-l1Folder = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VIS1\L1';   % 雷达产品文件目录
-saveFolder = 'H:\research\vislidar-intercomparison\tianjing';   % 输出结果目录
-overlapFile = 'VIS1_overlap_factor.txt';   % 重叠因子文件，重叠因子通过水平方法计算
+l0Folder = 'G:\backup\vis-lidar\20251221-wuhan\L0';   % 雷达原始数据文件目录
+l1Folder = 'G:\backup\vis-lidar\20251221-wuhan\L1';   % 雷达产品文件目录
+saveFolder = 'G:\backup\vis-lidar\20251221-wuhan';   % 输出结果目录
+overlapFile = 'VIS_overlap_factor.txt';   % 重叠因子文件，重叠因子通过水平方法计算
 flagOLCor = true;   % 是否进行重叠因子修正
 zenithAgl = 6;   % 雷达仰角（度）
 lr = 50;   % 雷达比
@@ -50,7 +50,7 @@ for iFolder = 1:length(dateFolders)
 
     % preprocessing
     thisSig = lidarSig(:, 1);
-    thisBG = nanmean(thisSig((end - 200):end));
+    thisBG = nanmean(thisSig((end - 50):end));
     thisSigCor = thisSig - thisBG;
     if flagOLCor
         ol = interp1(olHeight, olVal, range);
@@ -62,7 +62,7 @@ for iFolder = 1:length(dateFolders)
     [mBsc, mExt] = MolModel(range * sin(zenithAgl / 180 * pi), 1030, 'meteor', 'standard_atmosphere');
     [~, mExt550] = MolModel(range * sin(zenithAgl / 180 * pi), 550, 'meteor', 'standard_atmosphere');
     mAttn = mBsc .* exp(-2 * nancumsum(mExt .* [range(1); diff(range)] * 1e3));
-    ratioL2M = nansum(thisRCS(1500:1550)) / nansum(mAttn(1500:1550));
+    ratioL2M = nansum(thisRCS(1300:1450)) / nansum(mAttn(1300:1450));
 
     % lidar calibration
     isInHCaliRange = (range * 1e-3 >= refH(1)) & (range * 1e-3 <= refH(2));
@@ -130,7 +130,7 @@ for iFolder = 1:length(dateFolders)
                                 'calibration_constant', lcMean * 1e6, ...
                                 'fullOverlapR', 1200, ...
                                 'elevation_angle', 0);
-        ext3 = extRet_Xian(range, lidarSigCor(:, iPrf), thisBG(iPrf), 'minSNR', 2, 'rangeFullOverlap', 330);
+        ext3 = extRet_Xian(range, lidarSigCor(:, iPrf), thisBG(iPrf), 'minSNR', 2, 'rangeFullOverlap', 300);
 
         extMat_Xian(:, iPrf) = ext3;
         extMat_Holger(:, iPrf) = ext2;
@@ -164,7 +164,7 @@ for iFolder = 1:length(dateFolders)
 
     xlim([min(mTime), max(mTime)]);
     ylim([0, 10]);
-    caxis([0, 50]);
+    caxis([0, 20]);
 
     colormap('jet');
 
@@ -194,7 +194,7 @@ for iFolder = 1:length(dateFolders)
 
     xlim([min(mTime), max(mTime)]);
     ylim([0, 10]);
-    caxis([0, 50]);
+    caxis([0, 20]);
 
     colormap('jet');
 
@@ -224,7 +224,7 @@ for iFolder = 1:length(dateFolders)
 
     xlim([min(mTime), max(mTime)]);
     ylim([0, 10]);
-    caxis([0, 50]);
+    caxis([0, 20]);
 
     colormap('jet');
 

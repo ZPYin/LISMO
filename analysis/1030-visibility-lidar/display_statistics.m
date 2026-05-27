@@ -5,12 +5,12 @@ clc;
 close all;
 
 %% Parameter Definition
-statsFile = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VIS1\vis_statistics_new.txt';
-l1Folder = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VIS1\L1';   % 雷达产品文件目录
-saveFolder = 'H:\research\vislidar-intercomparison\tianjing\VIS1';   % 输出结果目录
+statsFile = 'G:\backup\vis-lidar\20251221-wuhan\vis_statistics_new.txt';
+l1Folder = 'G:\backup\vis-lidar\20251221-wuhan\L1';   % 雷达产品文件目录
+saveFolder = 'G:\backup\vis-lidar\20251221-wuhan';   % 输出结果目录
 visSensorFile = 'vis-sensor-data.mat';   % 前向散射能见度仪数据文件
 visDiffThresh = 2e4;   % [m]
-dist_vis_lidar = 0.5;   % 前向散射能见度仪与激光雷达距离（千米）
+dist_vis_lidar = 0.6;   % 前向散射能见度仪与激光雷达距离（千米）
 flagDisplayMeanStats = true;
 flagDisplayDailyStats = true;
 visible = 'on';
@@ -92,7 +92,7 @@ if flagDisplayDailyStats
         hold off;
 
         xlim([min(thisMTime), max(thisMTime)]);
-        ylim([0, 50]);
+        ylim([0, 20]);
 
         % xlabel('时间');
         ylabel('能见度 (千米)');
@@ -142,7 +142,7 @@ if flagDisplayDailyStats
         % hold off;
 
         % xlim([min(thisMTime), max(thisMTime)]);
-        % ylim([0, 50]);
+        % ylim([0, 20]);
 
         % xlabel('时间');
         % ylabel('温度（度）');

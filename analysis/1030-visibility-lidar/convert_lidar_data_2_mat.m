@@ -6,8 +6,8 @@ clc;
 close all;
 
 %% Parameter Definition
-l0Folder = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VS2\L0';   % 雷达原始数据文件目录
-l1Folder = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VS2\L1';   % 雷达产品文件目录
+l0Folder = 'G:\backup\vis-lidar\20251221-wuhan\L0';   % 雷达原始数据文件目录
+l1Folder = 'G:\backup\vis-lidar\20251221-wuhan\L1';   % 雷达产品文件目录
 distOffset = -21;   % 预触发点个数（可通过信号第一个峰值进行判断）
 
 %% Find Subfolders
