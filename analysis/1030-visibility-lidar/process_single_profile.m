@@ -27,7 +27,8 @@ thisL1 = readVisLidarL1(fullfile(l1Folder, datestr(thisDate, 'yyyy-mm-dd'), file
 load(visSensorFile);
 
 % read overlap factor
-ol = [];
+olHeight = [];
+olVal = [];
 if exist(overlapFile, 'file') == 2
     fid = fopen(overlapFile, 'r');
 
@@ -37,17 +38,6 @@ if exist(overlapFile, 'file') == 2
 
     fclose(fid);
 end
-
-% find pretrigger
-% figure;
-% plot(thisData.sig);
-
-% xlabel('Range Bin');
-% ylabel('Signal (a.u.)');
-
-% xlim([0, 200]);
-
-% set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on');
 
 % preprocessing
 nPretrigger = 12;
