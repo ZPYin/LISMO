@@ -33,16 +33,23 @@ lidarData = readALADat(lidarDataFile, 'datatype', 2);
 
 %% 信号预处理
 
+% 扣除预触发（通过将距离门前移进行标注）
 range = ((1:lidarData.nBins) - nPretriggers + 0.5) * lidarData.hRes(1);
 
+% 扣除背景
 bg = nanmean(lidarData.rawSignal((end - 40):(end - 10)));   % 背景噪声水平
 signal = lidarData.rawSignal - bg;   % 去除背景噪声
+
+% 死时间修正
+sigPCR = signal / (lidarData.nShots * lidarData.hRes * 2 / 3e8);   % Hz (cps)
+sigPCRCor = sigPCR ./ (1 - sigPCR * 25e-9);
+sigCor = sigPCRCor * (lidarData.nShots * lidarData.hRes * 2 / 3e8);   % (pc)
 
 ol = ones(size(lidarData.rawSignal));
 if ~ isempty(olHeight)
     ol = interp1(olHeight, olVal, range);
 end
-sigCor = transpose(signal) ./ ol;   % 重叠校正
+sigCor = transpose(sigCor) ./ ol;   % 重叠因子校正
 
 %% 能见度反演
 
