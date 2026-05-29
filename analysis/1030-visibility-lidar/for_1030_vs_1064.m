@@ -2,8 +2,8 @@
 % Compare the performance of 1030 and 1064 visibility lidar
 % 2024-03-24
 %------------------------------------------------------------------------------%
+
 close all;
-global LISMO_VARS;
 
 %% Parameter Definition
 distArr = 7.5:15:30000;

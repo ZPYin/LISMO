@@ -1,7 +1,9 @@
-%------------------------------------------------------------------------------%
 % Simulate the detection range under different visibilities.
-% 2024-03-24
-%------------------------------------------------------------------------------%
+%
+% AuthorL Zhenping Yin
+% Email: zp.yin@whu.edu.cn
+% Date: 2024-03-24
+
 close all;
 global LISMO_VARS;
 

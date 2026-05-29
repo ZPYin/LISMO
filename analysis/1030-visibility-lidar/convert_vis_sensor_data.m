@@ -1,12 +1,14 @@
 % convert visibility sensor data.
 % 
 % Author: Zhenping Yin
-% Date: 2026-05-27
 % Email: zp.yin@whu.edu.cn
+% Date: 2026-05-27
+
+parentPath = fileparts(mfilename('fullpath'));
 
 %% Parameter Definition
 % visFile = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\2026年05月01日00时+至+2026年05月07日00时+观测试验基地+____+能见度对比+分钟数据.xls';
-visFile = 'G:\backup\vis-lidar\20251221-wuhan\25-12-21.log';
+visFile = 'G:\backup\vis-lidar\20251221-wuhan\25-12-21.log';  % 目前支持两种格式.xls/.xlsx和.log，其他格式可以参考这两种进行修改
 
 %% Read Data
 [~, ~, ext] = fileparts(visFile);
@@ -14,8 +16,10 @@ visFile = 'G:\backup\vis-lidar\20251221-wuhan\25-12-21.log';
 visData = struct();
 visData.mTime = [];
 visData.vis = [];
+
 switch ext
     case {'.xls', '.xlsx'}
+        % Excel格式文件，这种文件主要是应用于天津标校场的前向散射能见度仪输出结果
         [~, ~, dataCell] = xlsread(visFile);
 
         %% Data Conversion
@@ -30,6 +34,9 @@ switch ext
         visData.vis = vis;
 
     case '.log'
+        % 文本格式文件，主要是武汉量子院前向散射能见度仪输出文件
+        % 其实正常前向散射能见度仪应该输出.csv格式，但是有人把log文件拷过来了
+        % 硬着头皮处理而已
         fid = fopen(visFile, 'r');
 
         lineCounter = 0;
@@ -38,12 +45,15 @@ switch ext
 
             thisLine1 = fgetl(fid);
             lineCounter = lineCounter + 1;
+
             if (~contains(thisLine1, 'RECV ASCII'))
+                % 这一部分主要是做一些数据清洗，去掉一些无效行
                 continue;
             else
                 thisLine2 = fgetl(fid);
                 lineCounter = lineCounter + 1;
                 if (~contains(thisLine2, 'PW')) || (~contains(thisLine2, '/////'))
+                    % 这一部分主要是做一些数据清洗，去掉一些无效行
                     continue;
                 else
                     thisMTime = datenum(thisLine1(2:24), 'yyyy-mm-dd HH:MM:SS.FFF');
@@ -56,6 +66,7 @@ switch ext
         end
 
         fclose(fid);
+
     otherwise
         error('Unsupported file format: %s', ext);
 end
@@ -79,6 +90,4 @@ ylabel('能见度 (千米)');
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'FontSize', 11);
 datetick(gca, 'x', 'mm-dd', 'keeplimits', 'keepticks');
 
-% legend(p1, 'Location', 'NorthWest');
-
-export_fig(gcf, 'vis_sensor_overview.png', '-r300');
+export_fig(gcf, fullfile(parentPath, 'vis_sensor_overview.png'), '-r300');

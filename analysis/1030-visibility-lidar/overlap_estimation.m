@@ -1,14 +1,19 @@
+% 用于估计能见度激光雷达重叠因子
+%
+% 作者：殷振平
+% 邮箱：zp.yin@whu.edu.cn
+% 日期：2026-05-29
+
 clc;
 close all;
+parentPath = fileparts(mfilename('fullpath'));
 
 %% Parameter Definition
-dataFile = 'G:\backup\vis-lidar\20251221-wuhan\L0\2025-12-24_vis_lidar_l0.mat';
-olFile = 'overlap_20251224.mat';
-linFitRange = [1600, 2000];
-prfIdx = 720:730;
+dataFile = 'G:\backup\vis-lidar\202605-wuhan\L0\2026-05-01_vis_lidar_l0.mat';
+linFitRange = [1600, 2000];   % 用于overlap拟合外推的距离范围，单位米
+prfIdx = 720:730;   % 用于overlap估计的廓线序列
 hRangeDisplay = [0, 2000];
-savePath = 'C:\Users\zhenp\Documents\Coding\Matlab\LISMO\analysis\1030-visibility-lidar';
-olFile = 'VIS_overlap_factor.txt';
+olFile = 'VIS_xglz_overlap_factor.txt';   % 保存的overlap文件
 
 %% List Data Files
 data = load(dataFile);
@@ -63,10 +68,10 @@ set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on');
 %% Save Overlap
 ov = smooth(rcs, 4) ./ smooth(fullRCS, 4);
 ov(range >= 2000) = 1;
-save(olFile, 'ov', 'range');
+save(fullfile(parentPath, olFile), 'ov', 'range');
 
 if exist(savePath, 'dir')
-    saveFile = fullfile(savePath, olFile);
+    saveFile = fullfile(parentPath, olFile);
     fid = fopen(saveFile, 'w');
     
     fprintf(fid, 'range (m) overlap_factor (smoothed by 4 range bins)\n');

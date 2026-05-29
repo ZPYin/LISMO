@@ -6,6 +6,7 @@
 
 clc;
 close all;
+parentPath = fileparts(mfilename('fullpath'));
 
 %% 参数定义
 visSensorFile = 'vis-sensor-data.mat';   % 前向散射能见度仪数据文件
@@ -16,7 +17,7 @@ tRange = [datenum(2025, 12, 22, 12, 0, 0), datenum(2025, 12, 24, 12, 0, 0)];
 flagOLCor = true;   % 是否进行重叠因子修正
 visDiffThresh = 2e4;   % [m]
 dist_vis_lidar = 0.6;   % 前向散射能见度仪与激光雷达距离（千米）
-flagDisplay = 'on';
+flagDisplay = 'off';
 
 %% Load Data
 
@@ -24,9 +25,10 @@ flagDisplay = 'on';
 load(visSensorFile);
 
 % read overlap factor
-ol = [];
+olVal = [];
+olHeight = [];
 if exist(overlapFile, 'file') == 2
-    fid = fopen(overlapFile, 'r');
+    fid = fopen(fullfile(parentPath, overlapFile), 'r');
 
     tmp = textscan(fid, '%f%f', 'HeaderLines', 1, 'Delimiter', ' ');
     olHeight = tmp{1};
@@ -68,7 +70,7 @@ if flagOLCor
 end
 lidarRCS = lidarSigCor .* repmat(range, 1, size(lidarSigCor, 2)).^2;
 visMat = visMat(:, isInTRange);
-visMat(range < 400, :) = NaN;
+visMat(range < 400, :) = NaN;   % 质控，去除重叠因子影响区域内的结果
 
 refIdx = find(range * 1e-3 >= dist_vis_lidar, 1);
 visTimeseries = visMat(refIdx, :);
@@ -101,7 +103,7 @@ l.FontSize = 10;
 subplot('Position', [0.1, 0.44, 0.77, 0.27], 'Units', 'Normalized');
 
 hold on;
-p1 = pcolor(mTimeMat, range * 1e-3, lidarRCS * 0.3e-10);
+p1 = pcolor(mTimeMat(1:10:end), range(1:4:end) * 1e-3, lidarRCS(1:4:end, 1:10:end) * 0.3e-10);
 p1.EdgeColor = 'none';
 hold off;
 
@@ -127,7 +129,7 @@ set(cb, 'TickDir', 'in', 'Box', 'on', 'TickLength', 0.02, 'FontSize', 11);
 subplot('Position', [0.1, 0.12, 0.77, 0.28], 'Units', 'Normalized');
 
 hold on;
-p1 = pcolor(mTimeMat, range * 1e-3, visMat * 1e-3);
+p1 = pcolor(mTimeMat(1:10:end), range(1:4:end) * 1e-3, visMat(1:4:end, 1:10:end) * 1e-3);
 p1.EdgeColor = 'none';
 
 xlabel('时间 (日 时:分)');
@@ -151,5 +153,5 @@ titleHandle = get(cb, 'Title');
 set(titleHandle, 'String', '[千米]');
 set(cb, 'TickDir', 'in', 'Box', 'on', 'TickLength', 0.02, 'FontSize', 11);
 
-export_fig(gcf, 'whu_vis_lidar_demonstration_figure.png', '-r300');
-% export_fig(gcf, 'whu_vis_lidar_demonstration_figure.pdf');
+export_fig(gcf, fullfile(parentPath, 'whu_vis_lidar_demonstration_figure.png'), '-r300');
+export_fig(gcf, fullfile(parentPath, 'whu_vis_lidar_demonstration_figure.pdf'), '-painters');

@@ -1,11 +1,14 @@
-% 分析能见度反演结果
+% 统计对比分析能见度反演结果，主要跟前向散射能见度仪数据进行对比，计算平均偏差、标准差、相对偏差等统计指标，并展示每日的统计结果和时间序列图。
+%
+% 作者：殷振平
+% 邮箱：zp.yin@whu.edu.cn
 % 日期：2025-02-05
 
 clc;
 close all;
 
 %% Parameter Definition
-statsFile = 'G:\backup\vis-lidar\20251221-wuhan\vis_statistics_new.txt';
+statsFile = 'G:\backup\vis-lidar\20251221-wuhan\vis_statistics_new.txt';   % 这个文件用于保存统计对比分析结果
 l1Folder = 'G:\backup\vis-lidar\20251221-wuhan\L1';   % 雷达产品文件目录
 saveFolder = 'G:\backup\vis-lidar\20251221-wuhan';   % 输出结果目录
 visSensorFile = 'vis-sensor-data.mat';   % 前向散射能见度仪数据文件
@@ -134,7 +137,7 @@ if flagDisplayDailyStats
 
         export_fig(gcf, fullfile(saveFolder, sprintf('%s_vis_comparison.png', datestr(thisMTime(1), 'yyyy-mm-dd'))), '-r300');
 
-        % % laser temperature
+        % % laser temperature（这个针对有这个数据输出的设备，如无锡中科）
         % figure('Position', [0, 30, 450, 250], 'Units', 'Pixels', 'Color', 'w', 'visible', visible);
 
         % hold on;
@@ -155,5 +158,6 @@ if flagDisplayDailyStats
         % export_fig(gcf, fullfile(saveFolder, sprintf('%s_laser_temperature.png', datestr(thisMTime(1), 'yyyy-mm-dd'))), '-r300');
 
     end
+
     fclose(sFid);
 end

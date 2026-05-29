@@ -1,14 +1,21 @@
-% This script converts the lidar data from the .txt files to .mat files
+% This script converts the lidar data from the *.txt/*.dat files to .mat files
+%
 % Author: Zhenping Yin
+% Email: zp.yin@whu.edu.cn
 % Date: 2025-01-15
 
 clc;
 close all;
 
 %% Parameter Definition
-l0Folder = 'G:\backup\vis-lidar\20251221-wuhan\L0';   % 雷达原始数据文件目录
-l1Folder = 'G:\backup\vis-lidar\20251221-wuhan\L1';   % 雷达产品文件目录
-distOffset = -21;   % 预触发点个数（可通过信号第一个峰值进行判断）
+l0Folder = 'G:\backup\vis-lidar\202605-wuhan\L0';   % 雷达原始数据文件目录
+l1Folder = 'G:\backup\vis-lidar\202605-wuhan\L1';   % 雷达产品文件目录
+                                                    % 这个是给之前无锡中科的输出产品转换准备的
+                                                    % 其他类型雷达可以忽略此项配置
+distOffset = -30;   % 预触发点个数（可通过信号第一个峰值进行判断）
+                    % 一般可以先运行代码，读取完数据后，显示其中一根廓线，然后看前面
+                    % 的独立峰值信号位置
+                    % figure; plot(lidarSig(:, 1));
 
 %% Find Subfolders
 L0SubFolders = listdir(l0Folder, '\w*', 1);
@@ -17,7 +24,8 @@ L1SubFolders = listdir(l1Folder, '\w*', 1);
 % Level 0
 for iFolder = 1:length(L0SubFolders)
 
-    fprintf('Finished %6.2f%%: processing %s\n', (iFolder - 1) / length(L0SubFolders) * 100, L0SubFolders{iFolder});
+    fprintf('Finished %6.2f%%: processing %s\n', ...
+        (iFolder - 1) / length(L0SubFolders) * 100, L0SubFolders{iFolder});
 
     % Find Files
     thisDate = datenum(basename(L0SubFolders{iFolder}), 'yyyymmdd');
@@ -36,7 +44,8 @@ end
 % Level 1
 for iFolder = 1:length(L1SubFolders)
 
-    fprintf('Finished %6.2f%%: processing %s\n', (iFolder - 1) / length(L1SubFolders) * 100, L1SubFolders{iFolder});
+    fprintf('Finished %6.2f%%: processing %s\n', ...
+        (iFolder - 1) / length(L1SubFolders) * 100, L1SubFolders{iFolder});
 
     % Find Files
     thisDate = datenum(basename(L1SubFolders{iFolder}), 'yyyy-mm-dd');
@@ -52,7 +61,8 @@ for iFolder = 1:length(L1SubFolders)
     height_LK = [];
     mTime_LK = [];
     for iFile = 1:length(thisFiles)
-        % fprintf('Finished %6.2f%%: reading %s\n', (iFile - 1) / length(thisFiles) * 100, thisFiles{iFile});
+        fprintf('Finished %6.2f%%: reading %s\n', ...
+            (iFile - 1) / length(thisFiles) * 100, thisFiles{iFile});
 
         thisL1 = readVisLidarL1(thisFiles{iFile});
         vis_LK = cat(2, vis_LK, thisL1.vis);
@@ -62,7 +72,8 @@ for iFolder = 1:length(L1SubFolders)
     end
 
     % Save to .mat file
-    save(fullfile(l1Folder, sprintf('%s_vis_lidar_l1.mat', datestr(thisDate, 'yyyy-mm-dd'))), ...
+    save(fullfile(l1Folder, ...
+        sprintf('%s_vis_lidar_l1.mat', datestr(thisDate, 'yyyy-mm-dd'))), ...
         'ext_LK', 'vis_LK', 'height_LK', 'mTime_LK');
 
 end
