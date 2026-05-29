@@ -24,6 +24,8 @@ function [oData] = readALADat(file, varargin)
 %        mTime: numeric
 %        nShots: numeric
 %        channelLabel: cell
+%        hRes: numeric
+%        nBins: numeric
 %        ele: numeric
 %        azm: numeric
 %

@@ -8,9 +8,9 @@ function [tExt] = extRet_Xian(range, signal, bg, varargin)
 %    range: numeric
 %        distance in range bins. (m)
 %    signal: numeric
-%        backscatter signal.
+%        background removed backscatter signal in photon counts.
 %    bg: numeric
-%        background
+%        background in photon counts
 %
 % KEYWORDS:
 %    rangeFullOverlap: numeric
@@ -37,21 +37,34 @@ addParameter(p, 'minSNR', 0.5, @isnumeric);
 
 parse(p, range, signal, bg, varargin{:});
 
+tExt = NaN(size(signal));   % total extinction (aerosol + molecule)
+
+% search the first range index with full overlap
 [~, idxMinOL] = min(abs(range - p.Results.rangeFullOverlap));
+
+% obtaining SNR profile
 SNR = lidarSNR(signal, bg, 'bgBins', [length(signal) - 15, length(signal)]);
-RCS = signal .* range.^2;
+
+RCS = signal .* range.^2;   % range corrected signal
+
 RCS_A = RCS(idxMinOL);
 ratioAB = RCS / RCS_A;
-detectLimitIdx = find((range >= p.Results.rangeFullOverlap) & (SNR <= p.Results.minSNR), 1);
-isInvalid = (range < p.Results.rangeFullOverlap) | (SNR <= p.Results.minSNR);
 
-tExt = NaN(size(signal));
+isFullOverlap = (range >= p.Results.rangeFullOverlap);
+isLowSNR = (SNR <= p.Results.minSNR);
+detectLimitIdx = find(isFullOverlap & isLowSNR, 1);
+isInvalid = (~ isFullOverlap) | isLowSNR;
+
 if (~ isempty(detectLimitIdx))
+    % find the index with limited signal
     ratioAB(isInvalid | (ratioAB <= 0)) = NaN;
     [~, idxB] = min(ratioAB(1:detectLimitIdx));
+
 else
+    % too strong signal (which is not expected)
     warning('Signal saturation.');
     return;
+
 end
 
 avgLen = 20;
@@ -62,7 +75,6 @@ elseif ((idxB - ceil(avgLen / 2)) < 1)
 else
     RCS_B = nanmean(RCS((idxB - ((idxB - ceil(avgLen / 2)) > 1)):end));
 end
-% RCS_B = RCS(idxB);
 
 if (idxB ~= idxMinOL)
     I_A_B = trapz(range(idxMinOL:idxB), RCS(idxMinOL:idxB));
@@ -71,7 +83,8 @@ else
 end
 
 for iBin = (idxMinOL + 1):idxB
-    tExt(iBin) = RCS(iBin) / (I_A_B / (1 - RCS_B / RCS_A) - trapz(range(idxMinOL:iBin), RCS(idxMinOL:iBin)));
+    tExt(iBin) = RCS(iBin) / (I_A_B / (1 - RCS_B / RCS_A) - ...
+        trapz(range(idxMinOL:iBin), RCS(idxMinOL:iBin)));
 end
 
 end
