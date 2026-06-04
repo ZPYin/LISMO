@@ -33,8 +33,6 @@ if flagDisplayDailyStats
     mTime = [];
     height = [];
     visMat_Xian = [];
-    visMat_Holger = [];
-    visMat_Fernald = [];
     for iFile = 1:length(matFiles)
 
         fprintf('Processing %s\n', matFiles{iFile});
@@ -43,21 +41,10 @@ if flagDisplayDailyStats
         height = data.range;
         thisMTime = data.mTime;
         thisVisMat_Xian = data.visMat_Xian;
-        thisVisMat_Holger = data.visMat_Holger;
-        thisVisMat_Fernald = data.visMat_Fernald;
 
         refIdx = find(height * 1e-3 >= dist_vis_lidar, 1);
-        visFernald = thisVisMat_Fernald(refIdx, :);
         visXian = thisVisMat_Xian(refIdx, :);
-        visHolger = thisVisMat_Holger(refIdx, :);
         visDataInterp = interp1(visData.mTime, visData.vis, thisMTime);
-
-        diffFernald = visFernald - visDataInterp;
-        stdFernald = nanstd(diffFernald((abs(diffFernald) <= visDiffThresh) & (visFernald > 0)));
-        meanFernald = nanmean(diffFernald((abs(diffFernald) <= visDiffThresh) & (visFernald > 0)));
-        relStdFernald = nanstd(diffFernald((abs(diffFernald) <= visDiffThresh) & (visFernald > 0)) ./ visDataInterp((abs(diffFernald) <= visDiffThresh) & (visFernald > 0)));
-        relMeanFernald = nanmean(diffFernald((abs(diffFernald) <= visDiffThresh) & (visFernald > 0)) ./ visDataInterp((abs(diffFernald) <= visDiffThresh) & (visFernald > 0)));
-        nFernaldOutliers = sum(abs(diffFernald) > visDiffThresh);
 
         diffXian = visXian - visDataInterp;
         stdXian = nanstd(diffXian((abs(diffXian) <= visDiffThresh) & (visXian > 0)));
@@ -66,21 +53,12 @@ if flagDisplayDailyStats
         relMeanXian = nanmean(diffXian((abs(diffXian) <= visDiffThresh) & (visXian > 0)) ./ visDataInterp((abs(diffXian) <= visDiffThresh) & (visXian > 0)));
         nXianOutliers = sum(abs(diffXian) > visDiffThresh);
 
-        diffHolger = visHolger - visDataInterp;
-        stdHolger = nanstd(diffHolger((abs(diffHolger) <= visDiffThresh) & (visHolger > 0)));
-        meanHolger = nanmean(diffHolger((abs(diffHolger) <= visDiffThresh) & (visHolger > 0)));
-        relStdHolger = nanstd(diffHolger((abs(diffHolger) <= visDiffThresh) & (visHolger > 0)) ./ visDataInterp((abs(diffHolger) <= visDiffThresh) & (visHolger > 0)));
-        relMeanHolger = nanmean(diffHolger((abs(diffHolger) <= visDiffThresh) & (visHolger > 0)) ./ visDataInterp((abs(diffHolger) <= visDiffThresh) & (visHolger > 0)));
-        nHolgerOutliers = sum(abs(diffHolger) > visDiffThresh);
-
         % write statistics
         fprintf(sFid, 'Date: %s\n', datestr(thisMTime(1), 'yyyy-mm-dd'));
         fprintf(sFid, 'Total Profiles: %d\n\n', length(thisMTime));
         fprintf(sFid, 'A6001\n');
         fprintf(sFid, '方法: 平均偏差 平均相对偏差 标准差 平均相对偏差标准差 异常点个数(偏差超过%6.2fkm)\n', visDiffThresh * 1e-3);
-        fprintf(sFid, 'Fernald: %5.2fkm %6.2f%% %5.2fkm %6.2f%% %d\n', meanFernald * 1e-3, relMeanFernald * 100, stdFernald * 1e-3, relStdFernald * 100, nFernaldOutliers);
         fprintf(sFid, 'Xian: %5.2fkm %6.2f%% %5.2fkm %6.2f%% %d\n', meanXian * 1e-3, relMeanXian * 100, stdXian * 1e-3, relStdXian * 100, nXianOutliers);
-        fprintf(sFid, 'Holger: %5.2fkm %6.2f%% %5.2fkm %6.2f%% %d\n', meanHolger * 1e-3, relMeanHolger * 100, stdHolger * 1e-3, relStdHolger * 100, nHolgerOutliers);
 
         % Display Statiscs
         figure('Position', [0, 30, 550, 500], 'Units', 'Pixels', 'Color', 'w', 'visible', visible);
@@ -88,9 +66,7 @@ if flagDisplayDailyStats
         subplot('Position', [0.15, 0.6, 0.8, 0.35], 'Units', 'Normalized');
 
         hold on;
-        p1 = plot(thisMTime, thisVisMat_Fernald(refIdx, :) * 1e-3, '-k', 'DisplayName', 'Fernald算法');
-        p2 = plot(thisMTime, thisVisMat_Xian(refIdx, :) * 1e-3, '-b', 'DisplayName', '大舜算法');
-        p3 = plot(thisMTime, thisVisMat_Holger(refIdx, :) * 1e-3, '-g', 'DisplayName', '前向迭代');
+        p2 = plot(thisMTime, thisVisMat_Xian(refIdx, :) * 1e-3, '-b', 'DisplayName', '激光雷达');
         p5 = scatter(visData.mTime, visData.vis * 1e-3, 10, 'Marker', 's', 'MarkerEdgeColor', 'cyan', 'MarkerFaceColor', 'cyan', 'DisplayName', '前散.');
         hold off;
 
@@ -105,15 +81,13 @@ if flagDisplayDailyStats
 
         datetick(gca, 'x', 'HH:MM', 'keeplimits', 'keepticks');
 
-        legend([p1, p2, p3, p5], 'Location', 'NorthEast');
+        legend([p2, p5], 'Location', 'NorthEast');
 
         subplot('Position', [0.15, 0.1, 0.8, 0.25], 'Units', 'Normalized');
 
         hold on;
 
-        plot(thisMTime, diffFernald * 1e-3, '-k');
         plot(thisMTime, diffXian * 1e-3, '-b');
-        plot(thisMTime, diffHolger * 1e-3, '-g');
 
         plot(thisMTime, zeros(size(thisMTime)), 'LineStyle', '-.', 'color', 'cyan');
 
@@ -129,33 +103,11 @@ if flagDisplayDailyStats
 
         datetick(gca, 'x', 'HH:MM', 'keeplimits', 'keepticks');
 
-        text(0, 1.24, sprintf('(Fernald 算法) 平均偏差: %5.2fkm (%6.2f%%); 标准差: %5.2fkm (%6.2f%%);\n(大舜算法) 平均偏差: %5.2fkm (%6.2f%%); 标准差: %5.2fkm (%6.2f%%);\n(前向迭代) 平均偏差: %5.2fkm (%6.2f%%); 标准差: %5.2fkm (%6.2f%%);\n', ...
-            meanFernald * 1e-3, relMeanFernald * 100, stdFernald * 1e-3, relStdFernald * 100, ...
-            meanXian * 1e-3, relMeanXian * 100, stdXian * 1e-3, relStdXian * 100, ...
-            meanHolger * 1e-3, relMeanHolger * 100, stdHolger * 1e-3, relStdHolger * 100), ...
+        text(0, 1.24, sprintf('(大舜算法) 平均偏差: %5.2fkm (%6.2f%%); 标准差: %5.2fkm (%6.2f%%);\n', ...
+            meanXian * 1e-3, relMeanXian * 100, stdXian * 1e-3, relStdXian * 100), ...
             'Units', 'Normalized', 'FontSize', 10);
 
         export_fig(gcf, fullfile(saveFolder, sprintf('%s_vis_comparison.png', datestr(thisMTime(1), 'yyyy-mm-dd'))), '-r300');
-
-        % % laser temperature（这个针对有这个数据输出的设备，如无锡中科）
-        % figure('Position', [0, 30, 450, 250], 'Units', 'Pixels', 'Color', 'w', 'visible', visible);
-
-        % hold on;
-        % plot(thisMTime, laserTemp, '-k');
-        % hold off;
-
-        % xlim([min(thisMTime), max(thisMTime)]);
-        % ylim([0, 20]);
-
-        % xlabel('时间');
-        % ylabel('温度（度）');
-        % title(sprintf('%s 激光头温度', datestr(thisMTime(1), 'yyyy-mm-dd')));
-
-        % set(gca, 'YMinorTick', 'on', 'Box', 'on', 'FontSize', 11);
-
-        % datetick(gca, 'x', 'HH:MM', 'keeplimits', 'keepticks');
-
-        % export_fig(gcf, fullfile(saveFolder, sprintf('%s_laser_temperature.png', datestr(thisMTime(1), 'yyyy-mm-dd'))), '-r300');
 
     end
 

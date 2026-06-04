@@ -50,6 +50,12 @@ fprintf('@1064nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, e
 fprintf('@1600nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, extinction(2, :) * factor, 1.6), 4 / interp1(wavelength, extinction(2, :) * factor, 1.6));
 fprintf('@2000nm: %5.3f; penatration depth (km): %5.3f\n', interp1(wavelength, extinction(2, :) * factor, 2.0), 4 / interp1(wavelength, extinction(2, :) * factor, 2.0));
 
+cloud_extinction= extinction(1, :);
+cloud_backscatter = backscatter(1, :);
+cloud_asymFactor = asymFactor(1, :);
+cloud_lidar_ratio = cloud_extinction ./ cloud_backscatter;
+save(fullfile(projectDir, 'data', 'sea-fog-optical-properties.mat'), 'wavelength', 'cloud_extinction', 'cloud_lidar_ratio', 'cloud_asymFactor', 'cloud_backscatter');
+
 %% Data visualization
 subPos = subfigPos([0.12, 0.10, 0.85, 0.84], 3, 1, 0, 0.04);
 
