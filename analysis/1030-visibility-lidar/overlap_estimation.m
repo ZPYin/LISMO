@@ -6,14 +6,14 @@
 
 clc;
 close all;
-parentPath = fileparts(mfilename('fullpath'));
 
 %% Parameter Definition
-dataFile = 'G:\backup\vis-lidar\202605-wuhan\L0\2026-05-01_vis_lidar_l0.mat';
-linFitRange = [1600, 2000];   % 用于overlap拟合外推的距离范围，单位米
-prfIdx = 720:730;   % 用于overlap估计的廓线序列
+dataFile = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\VIS1\L0\2026-06-04_vis_lidar_l0.mat';
+savePath = 'H:\research\vislidar-intercomparison\tianjing\VIS1';   % 输出结果目录
+linFitRange = [1000, 1200];   % 用于overlap拟合外推的距离范围，单位米
+prfIdx = 1250:1260;   % 用于overlap估计的廓线序列
 hRangeDisplay = [0, 2000];
-olFile = 'VIS_xglz_overlap_factor.txt';   % 保存的overlap文件
+olFile = 'VIS1_overlap_factor.txt';   % 保存的overlap文件
 
 %% List Data Files
 data = load(dataFile);
@@ -65,13 +65,15 @@ xlim(hRangeDisplay);
 ylim([-0.1, 1.2]);
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on');
 
+export_fig(gcf, fullfile(savePath, 'overlap_estimation.png'), '-r300');
+
 %% Save Overlap
 ov = smooth(rcs, 4) ./ smooth(fullRCS, 4);
 ov(range >= 2000) = 1;
-save(fullfile(parentPath, olFile), 'ov', 'range');
+save(fullfile(savePath, olFile), 'ov', 'range');
 
 if exist(savePath, 'dir')
-    saveFile = fullfile(parentPath, olFile);
+    saveFile = fullfile(savePath, olFile);
     fid = fopen(saveFile, 'w');
     
     fprintf(fid, 'range (m) overlap_factor (smoothed by 4 range bins)\n');

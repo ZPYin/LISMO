@@ -7,8 +7,9 @@
 parentPath = fileparts(mfilename('fullpath'));
 
 %% Parameter Definition
-% visFile = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\2026年05月01日00时+至+2026年05月07日00时+观测试验基地+____+能见度对比+分钟数据.xls';
-visFile = 'G:\backup\vis-lidar\20251221-wuhan\25-12-21.log';  % 目前支持两种格式.xls/.xlsx和.log，其他格式可以参考这两种进行修改
+visFile = 'G:\backup\vis-lidar\20260428-tianjin-evaluation\前散仪对比数据\2026年06月01日00时 至 2026年06月05日12时  观测试验基地 ____ 能见度对比 分钟数据.xls';
+savePath = 'H:\research\vislidar-intercomparison\tianjing';
+% visFile = 'G:\backup\vis-lidar\20251221-wuhan\25-12-21.log';  % 目前支持两种格式.xls/.xlsx和.log，其他格式可以参考这两种进行修改
 
 %% Read Data
 [~, ~, ext] = fileparts(visFile);
@@ -72,7 +73,7 @@ switch ext
 end
 
 %% Save Data
-save('vis-sensor-data.mat', 'visData');
+save(fullfile(savePath, 'vis-sensor-data.mat'), 'visData');
 
 %% Display
 figure('Position', [0, 30, 500, 250], 'Units', 'Pixels', 'Color', 'w');
@@ -90,4 +91,4 @@ ylabel('能见度 (千米)');
 set(gca, 'XMinorTick', 'on', 'YMinorTick', 'on', 'Box', 'on', 'FontSize', 11);
 datetick(gca, 'x', 'mm-dd', 'keeplimits', 'keepticks');
 
-export_fig(gcf, fullfile(parentPath, 'vis_sensor_overview.png'), '-r300');
+export_fig(gcf, fullfile(savePath, 'vis_sensor_overview.png'), '-r300');
