@@ -91,8 +91,7 @@ for iFolder = 9:length(dateFolders)
     extMat_Fernald = NaN(size(lidarSigCor));
     for iPrf = 1:size(lidarSigCor, 2)
         ext1 = extRet_Fernald(range, lidarSigCor(:, iPrf), thisBG(iPrf), mBsc, mExt, 'minSNR', 3, 'hFullOL', 330);
-
-        ext3 = extRet_Xian(range, lidarSigCor(:, iPrf), thisBG(iPrf), 'minSNR', 2, 'rangeFullOverlap', 300);
+        ext3 = extRet_Xian(range, lidarSigCor(:, iPrf), thisBG(iPrf), 'minSNR', 3, 'rangeFullOverlap', 330);
 
         extMat_Xian(:, iPrf) = ext3;
         extMat_Fernald(:, iPrf) = ext1;

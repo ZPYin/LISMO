@@ -17,13 +17,19 @@ function [tExt] = extRet_Xian(range, signal, bg, varargin)
 %        range of full overlap achieved. (m)
 %    minSNR: numeric
 %        minimum SNR for signal retrieval.
+%    flagConvert550: logical
+%        convert to 550 nm extinction coefficient. (bug in Xian's algorithm)
 %
 % OUTPUTS:
 %    tExt: numeric
 %        total extinction coefficient. (m^-1)
 %
+% REFERENCES:
+%    Xian, J., Han, Y., Huang, S., Sun, D., Zheng, J., Han, F., Zhou, A., Yang, S., Xu, W., Song, Q., Wei, L., Tan, Q., and Li, X.: Novel Lidar algorithm for horizontal visibility measurement and sea fog monitoring, Opt. Express, 26, 34853-34863, 10.1364/OE.26.034853, 2018.
+%
 % HISTORY:
 %    2023-03-07: first edition by Zhenping
+%    2024-06-10: update by Zhenping - bug fix (2 times difference).
 % .. Authors: - zp.yin@whu.edu.cn
 
 p = inputParser;
@@ -34,6 +40,7 @@ addRequired(p, 'signal', @isnumeric);
 addRequired(p, 'bg', @isnumeric);
 addParameter(p, 'rangeFullOverlap', 500.0, @isnumeric);
 addParameter(p, 'minSNR', 0.5, @isnumeric);
+addParameter(p, 'flagConvert550', true, @islogical);
 
 parse(p, range, signal, bg, varargin{:});
 
@@ -82,9 +89,18 @@ else
     I_A_B = 0;
 end
 
-for iBin = (idxMinOL + 1):idxB
-    tExt(iBin) = RCS(iBin) / (I_A_B / (1 - RCS_B / RCS_A) - ...
-        trapz(range(idxMinOL:iBin), RCS(idxMinOL:iBin)));
+% wavelength conversion (to 550 nm based on Angstroem exponent of 1)
+if (p.Results.flagConvert550)
+    wlConvRatio = (550 / 1030) .^ 1;
+else
+    wlConvRatio = 1;
+end
+
+tExt(idxB) = RCS_B / (I_A_B / (1 - RCS_B / RCS_A) - I_A_B);
+I_A_x = I_A_B;
+for iBin = (idxB - 1):-1:idxMinOL
+    I_A_x = I_A_x - (RCS(iBin) + RCS(iBin + 1)) / 2 * (range(iBin + 1) - range(iBin));
+    tExt(iBin) = wlConvRatio * RCS(iBin) / (I_A_B / (1 - RCS_B / RCS_A) - I_A_x);
 end
 
 end

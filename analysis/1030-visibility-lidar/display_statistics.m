@@ -16,7 +16,7 @@ visDiffThresh = 2e4;   % [m]
 dist_vis_lidar = 1.3;   % 前向散射能见度仪与激光雷达距离（千米）
 flagDisplayMeanStats = true;
 flagDisplayDailyStats = true;
-visible = 'on';
+visible = 'off';
 
 %% 读取前向散射能见度仪数据
 load(visSensorFile);
@@ -34,7 +34,7 @@ if flagDisplayDailyStats
     height = [];
     visMat_Xian = [];
     visMat_Fernald = [];
-    for iFile = 9:length(matFiles)
+    for iFile = 1:length(matFiles)
 
         fprintf('Processing %s\n', matFiles{iFile});
 
